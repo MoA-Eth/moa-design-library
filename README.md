@@ -12,12 +12,12 @@ One package — `@moa-eth/moa-design-library` — so every MoA system looks and 
 
 ## Install
 
-The package is published to GitHub Packages, private to the MoA-Eth organization.
+The package is published to GitHub Packages. GitHub Packages asks for a token to install any package, public ones included.
 
 1. Create a GitHub personal access token with `read:packages`.
 2. In your app, add an `.npmrc`:
 
-   ```
+   ```ini
    @moa-eth:registry=https://npm.pkg.github.com
    //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
    ```
@@ -89,3 +89,7 @@ pnpm lint        # lint
 pnpm typecheck   # types
 pnpm build       # dist/ with components, types, styles.css and themes
 ```
+
+## License
+
+[MIT](LICENSE) © Ministry of Agriculture, Federal Democratic Republic of Ethiopia
