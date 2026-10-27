@@ -1,0 +1,17 @@
+{
+  "name": "Chip",
+  "import": "import { Chip } from '@moa-eth/moa-design-library';",
+  "purpose": "A short status label such as In store, Pending or Rejected.",
+  "props": {
+    "tone": "'success' | 'info' | 'warning' | 'danger' | 'neutral' (default 'neutral')",
+    "dot": "boolean: a small dot of the tone's colour before the text",
+    "icon": "ReactNode before the text",
+    "...": "every <span> attribute"
+  },
+  "usage": ["<Chip tone=\"success\">In store</Chip>", "<Chip tone=\"warning\" dot>Pending</Chip>", "<Chip tone=\"danger\">Rejected</Chip>"],
+  "rules": [
+    "Status colours describe a state, never an action: don't make a Chip clickable.",
+    "The text must say the status; colour only supports it.",
+    "One to three words."
+  ]
+}

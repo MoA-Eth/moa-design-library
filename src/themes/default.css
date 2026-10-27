@@ -1,0 +1,98 @@
+/*
+ * MoA default theme: the Ministry of Agriculture green, the national gold, slate neutrals.
+ * A theme only sets these variables; components use them through the semantic classes in styles.css
+ * (bg-primary, text-muted-foreground, bg-success-soft…), so a new theme never touches a component.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --surface: #f8fafc;
+
+  /* The action colour: main buttons, selected tabs, focus */
+  --primary: #00843d;
+  --primary-hover: #0b6b3a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-hover: #e2e8f0;
+  --secondary-foreground: #1e293b;
+
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* The national gold, for accents only */
+  --accent: #fcdd09;
+  --accent-foreground: #1e293b;
+
+  --destructive: #b91c1c;
+  --destructive-hover: #991b1b;
+  --destructive-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #059669;
+
+  /* Status colours describe a state, never an action */
+  --success-soft: #d1fae5;
+  --success-soft-foreground: #065f46;
+  --success-soft-border: #a7f3d0;
+  --info-soft: #dbeafe;
+  --info-soft-foreground: #1e40af;
+  --info-soft-border: #bfdbfe;
+  --warning-soft: #fef3c7;
+  --warning-soft-foreground: #92400e;
+  --warning-soft-border: #fde68a;
+  --danger-soft: #fee2e2;
+  --danger-soft-foreground: #991b1b;
+  --danger-soft-border: #fecaca;
+  --neutral-soft: #f1f5f9;
+  --neutral-soft-foreground: #334155;
+  --neutral-soft-border: #e2e8f0;
+
+  --radius: 4px;
+  --font-sans: 'Inter', 'Noto Sans Ethiopic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dark {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+  --surface: #111a2b;
+
+  --primary: #16a34a;
+  --primary-hover: #15803d;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e293b;
+  --secondary-hover: #273449;
+  --secondary-foreground: #e2e8f0;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --accent: #fcdd09;
+  --accent-foreground: #0f172a;
+
+  --destructive: #dc2626;
+  --destructive-hover: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #273449;
+  --input: #334155;
+  --ring: #22c55e;
+
+  --success-soft: #064e3b;
+  --success-soft-foreground: #a7f3d0;
+  --success-soft-border: #065f46;
+  --info-soft: #1e3a8a;
+  --info-soft-foreground: #bfdbfe;
+  --info-soft-border: #1e40af;
+  --warning-soft: #78350f;
+  --warning-soft-foreground: #fde68a;
+  --warning-soft-border: #92400e;
+  --danger-soft: #7f1d1d;
+  --danger-soft-foreground: #fecaca;
+  --danger-soft-border: #991b1b;
+  --neutral-soft: #1e293b;
+  --neutral-soft-foreground: #cbd5e1;
+  --neutral-soft-border: #334155;
+}

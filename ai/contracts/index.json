@@ -1,0 +1,10 @@
+{
+  "package": "@moa-eth/moa-design-library",
+  "imports": {
+    "components": "@moa-eth/moa-design-library",
+    "styles": "@moa-eth/moa-design-library/styles.css",
+    "themes": "@moa-eth/moa-design-library/themes/<name>.css"
+  },
+  "forbiddenImports": ["@moa-eth/moa-design-library/dist/*", "@moa-eth/moa-design-library/src/*"],
+  "components": ["Button", "Input", "Chip", "Card"]
+}

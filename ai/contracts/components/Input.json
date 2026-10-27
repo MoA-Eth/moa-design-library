@@ -1,0 +1,19 @@
+{
+  "name": "Input",
+  "import": "import { Input } from '@moa-eth/moa-design-library';",
+  "purpose": "A single-line text field with its label, hint and error tied to it for screen readers.",
+  "props": {
+    "label": "string shown above the field; also its accessible name",
+    "hint": "ReactNode under the field, e.g. the expected format",
+    "error": "string: marks the field invalid, is announced, replaces the hint",
+    "...": "every <input> attribute except size (value, onChange, type, placeholder, disabled)"
+  },
+  "usage": [
+    "<Input label=\"Model 19 No.\" value={no} onChange={(e) => setNo(e.target.value)} />",
+    "<Input label=\"Quantity\" type=\"number\" error={tooMany ? 'Only 4 are in store' : undefined} />"
+  ],
+  "rules": [
+    "Always give a label; use the placeholder for an example only, never instead of the label.",
+    "Error text says what is wrong and how to fix it, in one sentence."
+  ]
+}
