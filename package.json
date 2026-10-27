@@ -18,6 +18,7 @@
     "./themes/*": "./dist/themes/*"
   },
   "files": [
+    "LICENSE",
     "dist",
     "ai",
     "docs",
@@ -57,7 +58,7 @@
     "radix-ui"
   ],
   "author": "Ministry of Agriculture (MoA-Eth)",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
