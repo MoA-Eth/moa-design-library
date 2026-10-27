@@ -1,6 +1,6 @@
 {
   "name": "@moa-eth/moa-design-library",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reusable React components, design tokens and themes for Ministry of Agriculture (MoA) applications",
   "type": "module",
   "main": "./dist/index.js",
