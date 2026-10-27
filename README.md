@@ -1,5 +1,7 @@
 # MoA Design Library
 
+![MoA Design Library: reusable React components, design tokens and themes for Ministry of Agriculture applications](.github/assets/preview.png)
+
 Reusable React components, design tokens and themes for Ministry of Agriculture (MoA) applications.
 One package — `@moa-eth/moa-design-library` — so every MoA system looks and behaves the same.
 
