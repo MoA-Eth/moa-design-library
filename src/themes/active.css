@@ -1,0 +1,2 @@
+/* The theme built into styles.css. An app can load another file from themes/ after styles.css to switch. */
+@import './default.css';

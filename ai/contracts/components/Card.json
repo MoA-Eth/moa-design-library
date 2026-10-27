@@ -1,0 +1,17 @@
+{
+  "name": "Card",
+  "import": "import { Card } from '@moa-eth/moa-design-library';",
+  "purpose": "A panel grouping related content, with an optional title, description, header actions and footer.",
+  "props": {
+    "title": "ReactNode heading; with it the card is a region named by the title",
+    "description": "ReactNode line under the title",
+    "actions": "ReactNode at the right of the header (buttons, links)",
+    "footer": "ReactNode along the bottom, right-aligned (buttons)",
+    "...": "every <div> attribute except title"
+  },
+  "usage": [
+    "<Card title=\"Item\" description=\"As received on Model 19\">…</Card>",
+    "<Card title=\"History\" actions={<Button size=\"sm\" variant=\"outline\">Print</Button>}>…</Card>"
+  ],
+  "rules": ["Give a card a title when a page has several, so each is a named region.", "Keep footer buttons to the actions of that card."]
+}
