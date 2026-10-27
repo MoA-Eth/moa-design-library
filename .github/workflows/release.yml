@@ -14,6 +14,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Git hooks are for people committing; the release bot's commits skip them
+    env:
+      HUSKY: 0
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,6 +32,9 @@ jobs:
         with:
           version: pnpm version-packages
           publish: pnpm release
+          # Conventional Commit wording, like every other commit and pull request in the repo
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
