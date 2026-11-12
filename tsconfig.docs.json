@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@moa-eth/moa-design-library": ["docs-nextra/registry/moa-entry.ts"],
+      "@moa-eth/moa-design-library/styles.css": ["src/styles.css"],
+      "@moa-eth/moa-design-library/themes/*": ["src/themes/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "pages/**/*", "docs-nextra/**/*", "src/**/*", "theme.config.tsx"],
+  "exclude": ["node_modules", "dist", "out", ".next"]
+}

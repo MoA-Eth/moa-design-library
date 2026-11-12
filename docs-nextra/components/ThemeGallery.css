@@ -1,0 +1,121 @@
+.moa-theme-gallery {
+  margin: 1rem 0 2rem;
+}
+
+.moa-theme-gallery__grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.moa-theme-card {
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 4px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.moa-theme-card:hover {
+  transform: translateY(-1px);
+}
+
+.moa-theme-card--active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+.moa-theme-card__inner {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.95rem;
+}
+
+.moa-theme-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.moa-theme-card__select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.moa-theme-card__name {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.moa-theme-card__note {
+  font-size: 0.74rem;
+  color: var(--muted-foreground);
+  margin-top: 0.15rem;
+}
+
+.moa-theme-card__mode {
+  display: inline-flex;
+  align-items: center;
+  height: 1.45rem;
+  padding: 0 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.moa-theme-card__swatches {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+}
+
+.moa-theme-card__swatch {
+  display: block;
+  height: 1.15rem;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.moa-theme-card__sample {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.moa-theme-card__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius, 4px);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.moa-theme-card__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--success-soft-border);
+  background: var(--success-soft);
+  color: var(--success-soft-foreground);
+  font-size: 0.7rem;
+  font-weight: 500;
+}

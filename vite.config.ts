@@ -35,6 +35,9 @@ export default defineConfig({
   define: {
     __MOA_DESIGN_LIBRARY_VERSION__: JSON.stringify(packageJson.version ?? '0.0.0'),
   },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   publicDir: false,
   build: {
     lib: {

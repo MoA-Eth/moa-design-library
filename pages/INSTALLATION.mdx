@@ -1,0 +1,35 @@
+import { DocsCodePreview } from '../docs-nextra/components/DocsCodePreview';
+
+# Installation
+
+Install `@moa-eth/moa-design-library` in any React 18 or React 19 application using GitHub Packages.
+
+## Configure `.npmrc`
+
+Add the `@moa-eth` registry mapping in your project `.npmrc`:
+
+<DocsCodePreview language="bash" code={`@moa-eth:registry=https://npm.pkg.github.com`} />
+
+## Install the package
+
+<DocsCodePreview language="bash" code={`pnpm add @moa-eth/moa-design-library`} />
+
+## Load the stylesheet once
+
+Import `@moa-eth/moa-design-library/styles.css` in your app root (`src/main.tsx` or `app/layout.tsx`):
+
+<DocsCodePreview
+  language="tsx"
+  code={`import '@moa-eth/moa-design-library/styles.css';
+import { Button, Card, Chip, Input } from '@moa-eth/moa-design-library';`}
+/>
+
+## Switching Themes
+
+Load any bundled MoA theme stylesheet immediately after `styles.css`:
+
+<DocsCodePreview
+  language="tsx"
+  code={`import '@moa-eth/moa-design-library/styles.css';
+import '@moa-eth/moa-design-library/themes/highland-slate.css';`}
+/>

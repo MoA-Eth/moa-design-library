@@ -1,0 +1,93 @@
+/*
+ * MoA Highland Slate theme: deep forest teal actions paired with crisp slate surfaces for dense operational consoles.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --surface: #f8fafc;
+
+  --primary: #0f766e;
+  --primary-hover: #115e59;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-hover: #e2e8f0;
+  --secondary-foreground: #1e293b;
+
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  --accent: #f59e0b;
+  --accent-foreground: #1e293b;
+
+  --destructive: #b91c1c;
+  --destructive-hover: #991b1b;
+  --destructive-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #0d9488;
+
+  --success-soft: #ccfbf1;
+  --success-soft-foreground: #115e59;
+  --success-soft-border: #99f6e4;
+  --info-soft: #e0f2fe;
+  --info-soft-foreground: #075985;
+  --info-soft-border: #bae6fd;
+  --warning-soft: #fef3c7;
+  --warning-soft-foreground: #92400e;
+  --warning-soft-border: #fde68a;
+  --danger-soft: #fee2e2;
+  --danger-soft-foreground: #991b1b;
+  --danger-soft-border: #fecaca;
+  --neutral-soft: #f1f5f9;
+  --neutral-soft-foreground: #334155;
+  --neutral-soft-border: #e2e8f0;
+
+  --radius: 6px;
+  --font-sans: 'Inter', 'Noto Sans Ethiopic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dark {
+  --background: #0a1418;
+  --foreground: #e2e8f0;
+  --surface: #112026;
+
+  --primary: #14b8a6;
+  --primary-hover: #0d9488;
+  --primary-foreground: #042f2e;
+
+  --secondary: #1e293b;
+  --secondary-hover: #273449;
+  --secondary-foreground: #e2e8f0;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --accent: #f59e0b;
+  --accent-foreground: #0f172a;
+
+  --destructive: #dc2626;
+  --destructive-hover: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #1f333a;
+  --input: #2c464f;
+  --ring: #2dd4bf;
+
+  --success-soft: #134e4a;
+  --success-soft-foreground: #99f6e4;
+  --success-soft-border: #115e59;
+  --info-soft: #0c4a6e;
+  --info-soft-foreground: #bae6fd;
+  --info-soft-border: #075985;
+  --warning-soft: #78350f;
+  --warning-soft-foreground: #fde68a;
+  --warning-soft-border: #92400e;
+  --danger-soft: #7f1d1d;
+  --danger-soft-foreground: #fecaca;
+  --danger-soft-border: #991b1b;
+  --neutral-soft: #1e293b;
+  --neutral-soft-foreground: #cbd5e1;
+  --neutral-soft-border: #334155;
+}

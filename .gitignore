@@ -1,6 +1,13 @@
 node_modules
 dist
 coverage
+.next
+out
+next-env.d.ts
+public/themes
+docs-nextra/registry/generated
+docs-nextra/themes-scoped.css
+docs-nextra/themes-data.json
 *.log
 .DS_Store
 *.tsbuildinfo

@@ -1,0 +1,41 @@
+import { ThemeGallery } from '../docs-nextra/components/ThemeGallery';
+import { ThemePlayground } from '../docs-nextra/components/ThemePlayground';
+import { DocsCodePreview } from '../docs-nextra/components/DocsCodePreview';
+
+# Theming Guide
+
+MoA Design Library components read semantic CSS variables (`--primary`, `--accent`, `--surface`, `--success-soft`, `--radius`, etc.) compiled via Tailwind CSS v4.
+
+## Theme Gallery
+
+Click a card to apply that theme across the documentation site, or toggle **Light / Dark** independently per card.
+
+<ThemeGallery />
+
+## Live Preview & Token Surface
+
+<ThemePlayground />
+
+## Using Built-In Themes
+
+<DocsCodePreview
+  language="tsx"
+  code={`import '@moa-eth/moa-design-library/styles.css';
+import '@moa-eth/moa-design-library/themes/default.css';`}
+/>
+
+Swap to another bundled MoA theme:
+
+<DocsCodePreview
+  language="tsx"
+  code={`import '@moa-eth/moa-design-library/styles.css';
+import '@moa-eth/moa-design-library/themes/highland-slate.css';`}
+/>
+
+Or apply a default theme during library build using the CLI helper:
+
+<DocsCodePreview
+  language="bash"
+  code={`pnpm theme:list
+pnpm theme:apply --theme highland-slate`}
+/>

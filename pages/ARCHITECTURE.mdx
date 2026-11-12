@@ -1,0 +1,17 @@
+# Architecture
+
+MoA Design Library follows a two-layer component structure paired with CSS variable theming, AI component contracts, and static Nextra interactive previews.
+
+## Repository Layout
+
+- `src/components/ui/`: Internal Radix UI + Tailwind v4 building blocks (`button`, `card`, `input`, `label`) — never exported publicly.
+- `src/components/<Name>/`: Public components (`Button`, `Card`, `Chip`, `Input`) with `<Name>.tsx`, `types.ts`, optional `styles.ts`, `index.ts`, and `<Name>.test.tsx`.
+- `src/themes/*.css`: Pure CSS custom property themes (`default.css`, `highland-slate.css`, `harvest-earth.css`) with `:root` and `.dark` scopes.
+- `ai/contracts/`: Machine-readable JSON contracts validated by `pnpm validate:contracts`.
+- `docs-nextra/` & `pages/`: Nextra 3 documentation app with live responsive component previews, multi-file flow previews, and static export (`out/`).
+
+## Build Pipeline
+
+- **Package bundle**: `vite build` with `preserveModules: true`, `@tailwindcss/vite`, and `vite-plugin-dts` emits tree-shakeable ESM modules and `dist/index.css`, followed by `scripts/copy-theme-assets.mjs` (`dist/themes/*`).
+- **Docs prebuild**: `pnpm predocs:build` runs `scripts/generate-example-code-manifest.mjs` (Shiki pre-highlighted examples) and `scripts/themes-to-scoped-css.mjs` (`public/themes/*`, `docs-nextra/themes-scoped.css`, `docs-nextra/themes-data.json`).
+- **Static docs export**: `pnpm docs:build` produces `out/` for GitHub Pages deployment.

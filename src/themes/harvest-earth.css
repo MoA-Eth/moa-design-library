@@ -1,0 +1,93 @@
+/*
+ * MoA Harvest Earth theme: warm agricultural olive green with ochre highlights and warm stone surfaces.
+ */
+:root {
+  --background: #fcfcfb;
+  --foreground: #1c1917;
+  --surface: #f5f5f4;
+
+  --primary: #2f6f3e;
+  --primary-hover: #245730;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e7e5e4;
+  --secondary-hover: #d6d3d1;
+  --secondary-foreground: #292524;
+
+  --muted: #f5f5f4;
+  --muted-foreground: #57534e;
+
+  --accent: #eab308;
+  --accent-foreground: #1c1917;
+
+  --destructive: #b91c1c;
+  --destructive-hover: #991b1b;
+  --destructive-foreground: #ffffff;
+
+  --border: #e7e5e4;
+  --input: #d6d3d1;
+  --ring: #3f8f52;
+
+  --success-soft: #dcfce7;
+  --success-soft-foreground: #166534;
+  --success-soft-border: #bbf7d0;
+  --info-soft: #dbeafe;
+  --info-soft-foreground: #1e40af;
+  --info-soft-border: #bfdbfe;
+  --warning-soft: #fef3c7;
+  --warning-soft-foreground: #92400e;
+  --warning-soft-border: #fde68a;
+  --danger-soft: #fee2e2;
+  --danger-soft-foreground: #991b1b;
+  --danger-soft-border: #fecaca;
+  --neutral-soft: #f5f5f4;
+  --neutral-soft-foreground: #44403c;
+  --neutral-soft-border: #e7e5e4;
+
+  --radius: 4px;
+  --font-sans: 'Inter', 'Noto Sans Ethiopic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dark {
+  --background: #141311;
+  --foreground: #f5f5f4;
+  --surface: #1c1a17;
+
+  --primary: #3f9151;
+  --primary-hover: #317740;
+  --primary-foreground: #ffffff;
+
+  --secondary: #292524;
+  --secondary-hover: #36312f;
+  --secondary-foreground: #e7e5e4;
+
+  --muted: #292524;
+  --muted-foreground: #a8a29e;
+
+  --accent: #eab308;
+  --accent-foreground: #1c1917;
+
+  --destructive: #dc2626;
+  --destructive-hover: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #2e2a27;
+  --input: #44403c;
+  --ring: #4ade80;
+
+  --success-soft: #14532d;
+  --success-soft-foreground: #bbf7d0;
+  --success-soft-border: #166534;
+  --info-soft: #1e3a8a;
+  --info-soft-foreground: #bfdbfe;
+  --info-soft-border: #1e40af;
+  --warning-soft: #78350f;
+  --warning-soft-foreground: #fde68a;
+  --warning-soft-border: #92400e;
+  --danger-soft: #7f1d1d;
+  --danger-soft-foreground: #fecaca;
+  --danger-soft-border: #991b1b;
+  --neutral-soft: #292524;
+  --neutral-soft-foreground: #d6d3d1;
+  --neutral-soft-border: #44403c;
+}
