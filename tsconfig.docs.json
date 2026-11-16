@@ -10,7 +10,11 @@
     "paths": {
       "@moa-eth/moa-design-library": ["docs-nextra/registry/moa-entry.ts"],
       "@moa-eth/moa-design-library/styles.css": ["src/styles.css"],
-      "@moa-eth/moa-design-library/themes/*": ["src/themes/*"]
+      "@moa-eth/moa-design-library/themes/*": ["src/themes/*"],
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@lib/*": ["src/lib/*"],
+      "@ui/*": ["src/components/ui/*"]
     }
   },
   "include": ["next-env.d.ts", "pages/**/*", "docs-nextra/**/*", "src/**/*", "theme.config.tsx"],

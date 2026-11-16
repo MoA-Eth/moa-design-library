@@ -1,0 +1,16 @@
+{
+  "name": "Form",
+  "import": "import { Form } from '@moa-eth/moa-design-library';",
+  "purpose": "Form shell integrating with React Hook Form, Zod validation, and error summaries.",
+  "props": {
+    "onSubmit": "(data: any) => void",
+    "children": "ReactNode: form fields and submit buttons",
+    "className": "string"
+  },
+  "usage": [
+    "<Form onSubmit={handleSubmit}><FormField name=\"name\" label=\"Name\" /><FormSubmit>Save</FormSubmit></Form>"
+  ],
+  "rules": [
+    "Always associate labels with inputs using name or htmlFor."
+  ]
+}

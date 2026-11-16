@@ -1,0 +1,19 @@
+{
+  "name": "BaseTable",
+  "import": "import { BaseTable } from '@moa-eth/moa-design-library';",
+  "purpose": "Data table built on TanStack Table supporting sorting, pagination, selection, and cell formatters.",
+  "props": {
+    "data": "T[]: table row array",
+    "columns": "Column<T>[]: column definitions",
+    "loading": "boolean: loading state",
+    "pagination": "PaginationProps: pagination controls",
+    "onRowClick": "(row: T) => void: row click handler",
+    "className": "string"
+  },
+  "usage": [
+    "<BaseTable data={farmers} columns={columns} loading={loading} />"
+  ],
+  "rules": [
+    "Use standard CellType formatters for dates, currencies, and chips."
+  ]
+}

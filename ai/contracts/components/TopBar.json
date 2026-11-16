@@ -1,0 +1,16 @@
+{
+  "name": "TopBar",
+  "import": "import { TopBar } from '@moa-eth/moa-design-library';",
+  "purpose": "Application top bar header with logo, search trigger, notifications, and user avatar.",
+  "props": {
+    "user": "{ name: string; email?: string; avatar?: string }",
+    "actions": "ReactNode: right side header actions",
+    "className": "string"
+  },
+  "usage": [
+    "<TopBar user={{ name: \"Dr. Girma\" }} actions={<Button size=\"sm\">Export</Button>} />"
+  ],
+  "rules": [
+    "Keep top bar height uniform across all application views."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Image",
+  "import": "import { Image } from '@moa-eth/moa-design-library';",
+  "purpose": "Responsive image wrapper with loading placeholder and fallback on error.",
+  "props": {
+    "src": "string: image URL",
+    "alt": "string: accessible description",
+    "aspectRatio": "string: e.g. \"16/9\"",
+    "className": "string"
+  },
+  "usage": [
+    "<Image src=\"/images/teff.jpg\" alt=\"Teff Field\" aspectRatio=\"16/9\" />"
+  ],
+  "rules": [
+    "Never omit alt text for informative images."
+  ]
+}

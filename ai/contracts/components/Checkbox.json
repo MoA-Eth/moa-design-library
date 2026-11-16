@@ -1,0 +1,20 @@
+{
+  "name": "Checkbox",
+  "import": "import { Checkbox } from '@moa-eth/moa-design-library';",
+  "purpose": "Accessible dual-state or indeterminate checkbox input.",
+  "props": {
+    "checked": "boolean | \"indeterminate\"",
+    "onCheckedChange": "(checked: boolean) => void",
+    "label": "string | ReactNode: checkbox label",
+    "helperText": "string: hint text",
+    "disabled": "boolean",
+    "error": "string | boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<Checkbox checked={agreed} onCheckedChange={setAgreed} label=\"Accept Terms\" />"
+  ],
+  "rules": [
+    "Wrap multiple related checkboxes in a fieldset with a descriptive legend."
+  ]
+}

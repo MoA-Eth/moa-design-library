@@ -1,0 +1,19 @@
+{
+  "name": "Text",
+  "import": "import { Text } from '@moa-eth/moa-design-library';",
+  "purpose": "Typography component rendering semantic text elements with design token sizes.",
+  "props": {
+    "as": "'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'label'",
+    "size": "'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'",
+    "weight": "'normal' | 'medium' | 'semibold' | 'bold'",
+    "color": "'primary' | 'muted' | 'destructive' | 'inherit'",
+    "children": "ReactNode",
+    "className": "string"
+  },
+  "usage": [
+    "<Text as=\"h2\" size=\"xl\" weight=\"semibold\">Registered Warehouses</Text>"
+  ],
+  "rules": [
+    "Never skip heading levels for visual styling alone; choose the semantic level and customize size."
+  ]
+}

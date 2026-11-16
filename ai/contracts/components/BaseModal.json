@@ -1,0 +1,22 @@
+{
+  "name": "BaseModal",
+  "import": "import { BaseModal } from '@moa-eth/moa-design-library';",
+  "purpose": "Accessible dialog overlay with accessible title, description, and action buttons.",
+  "props": {
+    "isOpen": "boolean: controls dialog visibility",
+    "onClose": "() => void: triggers modal close",
+    "title": "string: dialog heading",
+    "description": "string: optional description",
+    "onSave": "() => void: primary save action handler",
+    "onCancel": "() => void: cancel action handler",
+    "children": "ReactNode: dialog body content",
+    "className": "string"
+  },
+  "usage": [
+    "<BaseModal isOpen={open} onClose={() => setOpen(false)} title=\"Confirm Transfer\">Proceed?</BaseModal>"
+  ],
+  "rules": [
+    "Always provide a concise title for screen readers.",
+    "Use destructive button styling for irreversible operations."
+  ]
+}

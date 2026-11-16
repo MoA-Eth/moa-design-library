@@ -1,0 +1,20 @@
+{
+  "name": "TextArea",
+  "import": "import { TextArea } from '@moa-eth/moa-design-library';",
+  "purpose": "Multi-line text input field with character count, auto-resize, and validation errors.",
+  "props": {
+    "value": "string",
+    "onChange": "(e: any) => void",
+    "label": "string",
+    "rows": "number (default: 3)",
+    "helperText": "string",
+    "error": "string | boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<TextArea label=\"Inspection Notes\" value={notes} onChange={(e) => setNotes(e.target.value)} />"
+  ],
+  "rules": [
+    "Set an appropriate default rows count based on anticipated input length."
+  ]
+}

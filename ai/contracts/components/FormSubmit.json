@@ -1,0 +1,17 @@
+{
+  "name": "FormSubmit",
+  "import": "import { FormSubmit } from '@moa-eth/moa-design-library';",
+  "purpose": "Submit button with automatic loading state and form submission binding.",
+  "props": {
+    "children": "ReactNode: button label",
+    "variant": "ButtonVariant",
+    "loading": "boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<FormSubmit>Register Farmer</FormSubmit>"
+  ],
+  "rules": [
+    "Place primary submit button at the bottom right of the form layout."
+  ]
+}

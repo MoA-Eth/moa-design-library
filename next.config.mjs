@@ -43,6 +43,10 @@ export default withNextra({
       '@moa-eth/moa-design-library/styles.css': path.resolve(__dirname, 'src/styles.css'),
       '@moa-eth/moa-design-library/themes': path.resolve(__dirname, 'src/themes'),
       '@moa-eth/moa-design-library': path.resolve(__dirname, 'docs-nextra/registry/moa-entry.ts'),
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@lib': path.resolve(__dirname, 'src/lib'),
+      '@ui': path.resolve(__dirname, 'src/components/ui'),
     };
 
     return config;

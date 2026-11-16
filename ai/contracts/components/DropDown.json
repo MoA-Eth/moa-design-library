@@ -1,0 +1,20 @@
+{
+  "name": "DropDown",
+  "import": "import { DropDown } from '@moa-eth/moa-design-library';",
+  "purpose": "Select dropdown menu built on Radix UI Select with keyboard navigation.",
+  "props": {
+    "options": "{ value: string; label: string }[]",
+    "value": "string: selected value",
+    "onChange": "(value: string) => void",
+    "placeholder": "string",
+    "label": "string",
+    "disabled": "boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<DropDown options={regionOptions} value={region} onChange={setRegion} label=\"Region\" />"
+  ],
+  "rules": [
+    "Prefer native select for simple mobile lists, DropDown for rich styled options."
+  ]
+}

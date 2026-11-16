@@ -1,0 +1,16 @@
+{
+  "name": "OnboardingChecklist",
+  "import": "import { OnboardingChecklist } from '@moa-eth/moa-design-library';",
+  "purpose": "Interactive step-by-step checklist tracking user setup completion.",
+  "props": {
+    "steps": "{ id: string; title: string; completed: boolean }[]",
+    "onStepClick": "(id: string) => void",
+    "className": "string"
+  },
+  "usage": [
+    "<OnboardingChecklist steps={steps} onStepClick={handleStep} />"
+  ],
+  "rules": [
+    "Keep initial onboarding checklist to 5 or fewer core setup steps."
+  ]
+}

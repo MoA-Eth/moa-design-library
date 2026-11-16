@@ -5,6 +5,41 @@
     "styles": "@moa-eth/moa-design-library/styles.css",
     "themes": "@moa-eth/moa-design-library/themes/<name>.css"
   },
-  "forbiddenImports": ["@moa-eth/moa-design-library/dist/*", "@moa-eth/moa-design-library/src/*"],
-  "components": ["Button", "Input", "Chip", "Card"]
+  "forbiddenImports": [
+    "@moa-eth/moa-design-library/dist/*",
+    "@moa-eth/moa-design-library/src/*"
+  ],
+  "components": [
+    "Button",
+    "Input",
+    "Chip",
+    "Card",
+    "Autocomplete",
+    "Avatar",
+    "BaseModal",
+    "BaseTable",
+    "BoardCard",
+    "Chart",
+    "Checkbox",
+    "DatePicker",
+    "DetailsCard",
+    "DropDown",
+    "Form",
+    "FormField",
+    "FormSubmit",
+    "Icon",
+    "Image",
+    "Logo",
+    "NavMenu",
+    "OnboardingChecklist",
+    "Page",
+    "Search",
+    "SideBar",
+    "StatCard",
+    "Text",
+    "TextArea",
+    "Toaster",
+    "Toggle",
+    "TopBar"
+  ]
 }

@@ -1,0 +1,19 @@
+{
+  "name": "BoardCard",
+  "import": "import { BoardCard } from '@moa-eth/moa-design-library';",
+  "purpose": "Task or item card for kanban boards and workflow queues.",
+  "props": {
+    "title": "string: task title",
+    "description": "string: task description",
+    "tags": "string[]: category tags",
+    "assignee": "{ name: string; avatar?: string }",
+    "onClick": "() => void",
+    "className": "string"
+  },
+  "usage": [
+    "<BoardCard title=\"Inspect Fertilizer Batch\" tags={[\"Quality\", \"Urgent\"]} />"
+  ],
+  "rules": [
+    "Keep titles concise and action-oriented."
+  ]
+}

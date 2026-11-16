@@ -1,0 +1,159 @@
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { RapidKitAccessProvider } from '@lib/access-provider';
+import { Checkbox } from './Checkbox';
+
+let canView = true;
+let canEdit = true;
+
+const installThemeProbeStyles = () => {
+  const styleId = 'checkbox-theme-probe-styles';
+  const existing = document.getElementById(styleId);
+  if (existing) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = styleId;
+  style.textContent = `
+    .border {
+      border-style: solid !important;
+      border-width: 1px !important;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
+describe('Checkbox', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  beforeEach(() => {
+    canView = true;
+    canEdit = true;
+    installThemeProbeStyles();
+  });
+
+  it('renders label, required marker, and title', () => {
+    render(
+      <Checkbox
+        name="acceptTerms"
+        label="Accept Terms"
+        required
+        title="I agree"
+        onCheckChange={vi.fn()}
+      />,
+    );
+
+    expect(Boolean(screen.getByText('Accept Terms'))).toBe(true);
+    expect(Boolean(screen.getByText('*'))).toBe(true);
+    expect(Boolean(screen.getByText('I agree'))).toBe(true);
+  });
+
+  it('calls onCheckChange with checked value and name', () => {
+    const onCheckChange = vi.fn();
+
+    render(<Checkbox name="notify" onCheckChange={onCheckChange} />);
+
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    expect(onCheckChange).toHaveBeenCalledTimes(1);
+    expect(onCheckChange).toHaveBeenCalledWith(true, 'notify');
+  });
+
+  it('hides checkbox when view access is denied', () => {
+    canView = false;
+
+    render(
+      <Checkbox
+        name="secure"
+        access={{ rules: [{ action: 'read', subject: 'resource' }] }}
+        canAccess={(_, mode) => (mode === 'view' ? canView : canEdit)}
+        onCheckChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole('checkbox')).toBeNull();
+  });
+
+  it('disables checkbox when edit access is denied', () => {
+    canEdit = false;
+
+    render(
+      <Checkbox
+        name="secure"
+        access={{ rules: [{ action: 'write', subject: 'resource' }] }}
+        canAccess={(_, mode) => (mode === 'view' ? canView : canEdit)}
+        onCheckChange={vi.fn()}
+      />,
+    );
+
+    expect((screen.getByRole('checkbox') as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it('renders error and helper text', () => {
+    render(
+      <Checkbox
+        name="field"
+        onCheckChange={vi.fn()}
+        error="This field is required"
+        helperText="Please review before continuing"
+      />,
+    );
+
+    expect(Boolean(screen.getByText('This field is required'))).toBe(true);
+    expect(Boolean(screen.getByText('Please review before continuing'))).toBe(
+      true,
+    );
+    expect(screen.getByRole('checkbox').className).toContain(
+      'border-destructive',
+    );
+  });
+
+  it('keeps a visible border when unchecked', () => {
+    render(<Checkbox name="unchecked" onCheckChange={vi.fn()} />);
+
+    const checkbox = screen.getByRole('checkbox');
+    const style = getComputedStyle(checkbox);
+
+    expect(checkbox.className).toContain('border');
+    expect(checkbox.className).toContain('border-solid');
+    expect(checkbox.className).toContain(
+      'border-[hsl(var(--rk-control-border))]',
+    );
+    expect(style.borderWidth).toBe('1px');
+  });
+
+  it('inherits canAccess from RapidKitAccessProvider when prop is omitted', () => {
+    render(
+      <RapidKitAccessProvider canAccess={() => false}>
+        <Checkbox
+          name="providerHiddenCheckbox"
+          access={{ rules: [{ action: 'read', subject: 'resource' }] }}
+          onCheckChange={vi.fn()}
+        />
+      </RapidKitAccessProvider>,
+    );
+
+    expect(screen.queryByRole('checkbox')).toBeNull();
+  });
+
+  it('prefers explicit canAccess over RapidKitAccessProvider value', () => {
+    render(
+      <RapidKitAccessProvider canAccess={() => false}>
+        <Checkbox
+          name="providerOverrideCheckbox"
+          title="Allowed"
+          access={{ rules: [{ action: 'read', subject: 'resource' }] }}
+          canAccess={() => true}
+          onCheckChange={vi.fn()}
+        />
+      </RapidKitAccessProvider>,
+    );
+
+    expect(Boolean(screen.getByText('Allowed'))).toBe(true);
+  });
+});

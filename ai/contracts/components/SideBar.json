@@ -1,0 +1,17 @@
+{
+  "name": "SideBar",
+  "import": "import { SideBar } from '@moa-eth/moa-design-library';",
+  "purpose": "Collapsible application sidebar navigation with grouped links, icons, and badges.",
+  "props": {
+    "items": "{ label: string; href: string; icon?: ReactNode; badge?: string }[]",
+    "isCollapsed": "boolean",
+    "onToggleCollapse": "() => void",
+    "className": "string"
+  },
+  "usage": [
+    "<SideBar items={navItems} isCollapsed={collapsed} onToggleCollapse={toggle} />"
+  ],
+  "rules": [
+    "Ensure high contrast for active items and accessible collapse button."
+  ]
+}

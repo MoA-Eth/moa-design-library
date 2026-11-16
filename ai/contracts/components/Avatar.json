@@ -1,0 +1,19 @@
+{
+  "name": "Avatar",
+  "import": "import { Avatar } from '@moa-eth/moa-design-library';",
+  "purpose": "Displays a user avatar image or computed initials fallback.",
+  "props": {
+    "src": "string: image source URL",
+    "alt": "string: person or organization name",
+    "size": "'sm' | 'md' | 'lg' (default: 'md')",
+    "fallback": "ReactNode: custom fallback icon or text",
+    "className": "string"
+  },
+  "usage": [
+    "<Avatar src=\"/avatars/abebe.jpg\" alt=\"Abebe Bikila\" size=\"md\" />",
+    "<Avatar alt=\"Ministry of Agriculture\" size=\"lg\" />"
+  ],
+  "rules": [
+    "Always supply alt text to compute initials fallback and announce to screen readers."
+  ]
+}

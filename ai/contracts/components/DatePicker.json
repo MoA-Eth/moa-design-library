@@ -1,0 +1,19 @@
+{
+  "name": "DatePicker",
+  "import": "import { DatePicker } from '@moa-eth/moa-design-library';",
+  "purpose": "Calendar date picker with accessible popover and format localization.",
+  "props": {
+    "value": "Date | null: selected date",
+    "onChange": "(date: Date | null) => void",
+    "label": "string: field label",
+    "placeholder": "string",
+    "disabled": "boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<DatePicker value={harvestDate} onChange={setHarvestDate} label=\"Harvest Date\" />"
+  ],
+  "rules": [
+    "Provide ISO or localized date formats standard to Ethiopian public records."
+  ]
+}

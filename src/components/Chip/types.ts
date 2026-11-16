@@ -9,4 +9,10 @@ export interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   icon?: React.ReactNode;
   /** A small dot of the tone's colour before the text, for a quieter status */
   dot?: boolean;
+  /** Label text alternative to children */
+  label?: React.ReactNode;
+  /** Variant alias */
+  variant?: string;
+  /** Size alias */
+  size?: string;
 }

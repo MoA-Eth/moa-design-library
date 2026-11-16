@@ -1,12 +1,2711 @@
-import { useState, type JSX } from 'react';
-import Link from 'next/link';
-import { ExternalLink, Laptop, Smartphone, Tablet } from 'lucide-react';
-import { ExampleTabs } from './ExampleTabs';
-import { COMPONENT_EXAMPLE_RENDERERS, type ComponentExampleId } from '../registry/components';
-import { EXAMPLE_CODE } from '../registry/generated/exampleCode';
+import { useEffect, useMemo, useState, type JSX } from 'react';
+import { Autocomplete } from '../../src/components/Autocomplete';
+import { Avatar } from '../../src/components/Avatar';
+import { BaseModal } from '../../src/components/BaseModal';
+import { BaseTable } from '../../src/components/BaseTable';
+import { Button, ButtonVariant } from '../../src/components/Button';
+import { Chart, ChartVariant } from '../../src/components/Chart';
+import type { ChartConfig } from '../../src/components/Chart';
+import { Checkbox } from '../../src/components/Checkbox';
+import { Chip } from '../../src/components/Chip';
+import { DatePicker } from '../../src/components/DatePicker';
+import { DetailsCard } from '../../src/components/DetailsCard';
+import { DropDown } from '../../src/components/DropDown';
+import { Form, FormField, FormSubmit } from '../../src/components/Form';
+import { useFormHandlers } from '../../src/hooks/useFormHandlers';
+import { Icon } from '../../src/components/Icon';
+import { Image } from '../../src/components/Image';
+import { Input } from '../../src/components/Input';
+import { Logo } from '../../src/components/Logo';
+import { NavMenu } from '../../src/components/NavMenu';
+import { Page } from '../../src/components/Page';
+import { Search } from '../../src/components/Search';
+import { SideBar } from '../../src/components/SideBar';
+import { StatCard } from '../../src/components/StatCard';
+import { Text } from '../../src/components/Text';
+import { TextArea } from '../../src/components/TextArea';
+import { Toaster, toast } from '../../src/components/Toast';
+import { Toggle } from '../../src/components/Toggle';
+import { CellType } from '../../src/components/BaseTable/components/BaseTableRow/components/BaseTableCell';
+import type { Column } from '../../src/components/BaseTable/components/BaseTableRow';
+import { withBasePath } from './withBasePath';
+import {
+  Archive,
+  BarChart3,
+  Bell,
+  Circle,
+  Download,
+  FileText,
+  FolderKanban,
+  Home,
+  LifeBuoy,
+  PanelLeft,
+  Laptop,
+  Plus,
+  Settings,
+  Smartphone,
+  Tablet,
+  Users,
+} from 'lucide-react';
+
+export type ComponentExampleId =
+  | 'autocomplete'
+  | 'avatar'
+  | 'base-modal'
+  | 'base-table'
+  | 'button'
+  | 'chart'
+  | 'checkbox'
+  | 'chip'
+  | 'date-picker'
+  | 'details-card'
+  | 'drop-down'
+  | 'form'
+  | 'form-field'
+  | 'form-submit'
+  | 'icon'
+  | 'image'
+  | 'logo'
+  | 'nav-menu'
+  | 'input'
+  | 'page'
+  | 'search'
+  | 'side-bar'
+  | 'stat-card'
+  | 'text'
+  | 'text-area'
+  | 'toast'
+  | 'toggle';
+
+type ExampleConfig = {
+  code: string;
+  render: () => JSX.Element;
+};
+
+type ExampleTabsProps = Readonly<{
+  component: ComponentExampleId;
+}>;
+
+const rapidKitLogoSrc = withBasePath('/rapidkit.svg');
+
+type ServiceSearchCandidate = {
+  name: string;
+  owner: string;
+  region: string;
+  tags: string[];
+};
+
+function matchesServiceSearch(
+  item: ServiceSearchCandidate,
+  searchQuery: string,
+): boolean {
+  if (!searchQuery) {
+    return true;
+  }
+
+  const nameMatches = item.name.toLowerCase().includes(searchQuery);
+  const ownerMatches = item.owner.toLowerCase().includes(searchQuery);
+  const regionMatches = item.region.toLowerCase().includes(searchQuery);
+  const tagsNormalized = item.tags.join(' ').toLowerCase();
+  const tagMatches = tagsNormalized.includes(searchQuery);
+
+  return nameMatches || ownerMatches || regionMatches || tagMatches;
+}
+
+function getNoisyAlertCount(baseAlertsCount: number, rowIndex: number): number {
+  if (rowIndex % 4 === 0) {
+    return baseAlertsCount + 7;
+  }
+  if (rowIndex % 3 === 0) {
+    return baseAlertsCount + 3;
+  }
+  return baseAlertsCount;
+}
+
+function getNoisyStatus(
+  currentStatus: 'active' | 'inactive' | 'degraded',
+  rowIndex: number,
+): 'active' | 'inactive' | 'degraded' {
+  if (rowIndex % 4 === 0) {
+    return 'degraded';
+  }
+  if (rowIndex % 3 === 0) {
+    return 'inactive';
+  }
+  return currentStatus;
+}
+
+function toComparableString(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry : ''))
+      .join(' ')
+      .trim();
+  }
+  return '';
+}
+
+function getCopyLabel(copyState: 'idle' | 'done' | 'error'): string {
+  if (copyState === 'done') {
+    return 'Copied';
+  }
+  if (copyState === 'error') {
+    return 'Failed';
+  }
+  return 'Copy';
+}
+
+type UserOption = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+const MOCK_USERS: UserOption[] = [
+  { id: 1, name: 'Alex Rivera', email: 'alex@company.com' },
+  { id: 2, name: 'Jordan Kim', email: 'jordan@company.com' },
+  { id: 3, name: 'Sam Lee', email: 'sam@company.com' },
+  { id: 4, name: 'Taylor Morgan', email: 'taylor@company.com' },
+];
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function dummySearchUsers(params: {
+  query: string;
+  page: number;
+  size: number;
+}): Promise<{
+  items: UserOption[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+}> {
+  await wait(180);
+
+  const needle = params.query.toLowerCase().trim();
+  const filtered = MOCK_USERS.filter((item) => {
+    if (!needle) {
+      return true;
+    }
+
+    return (
+      item.name.toLowerCase().includes(needle) ||
+      item.email.toLowerCase().includes(needle)
+    );
+  });
+
+  const start = (params.page - 1) * params.size;
+  const pagedItems = filtered.slice(start, start + params.size);
+
+  return {
+    items: pagedItems,
+    currentPage: params.page,
+    totalPages: Math.max(1, Math.ceil(filtered.length / params.size)),
+    totalItems: filtered.length,
+  };
+}
+
+async function dummyGetUserById(id: number): Promise<UserOption | null> {
+  await wait(80);
+  return MOCK_USERS.find((user) => user.id === id) ?? null;
+}
+
+function AutocompletePreview(): JSX.Element {
+  const [selectedId, setSelectedId] = useState<number | null>(2);
+
+  return (
+    <div className="space-y-3" style={{ maxWidth: 520 }}>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          className="rounded-md border bg-background px-2.5 py-1 text-xs hover:bg-muted"
+          onClick={() => setSelectedId(2)}
+        >
+          Set Jordan
+        </button>
+        <button
+          type="button"
+          className="rounded-md border bg-background px-2.5 py-1 text-xs hover:bg-muted"
+          onClick={() => setSelectedId(4)}
+        >
+          Set Taylor
+        </button>
+        <button
+          type="button"
+          className="rounded-md border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted"
+          onClick={() => setSelectedId(null)}
+        >
+          Clear value
+        </button>
+      </div>
+
+      <Autocomplete<UserOption>
+        name="assignee"
+        label="Assignee"
+        value={selectedId}
+        size={4}
+        searchOptions={dummySearchUsers}
+        getOptionById={dummyGetUserById}
+        onSelectOption={(item) => setSelectedId(item?.id ?? null)}
+      />
+    </div>
+  );
+}
+
+function AvatarPreview(): JSX.Element {
+  const previewImageSrc =
+    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80';
+
+  return (
+    <div className="flex items-end gap-4">
+      <div className="flex flex-col items-center gap-1">
+        <Avatar src={previewImageSrc} alt="Alex Rivera" size="sm" />
+        <span className="text-xs text-muted-foreground">sm</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <Avatar alt="Jordan Kim" size="md" />
+        <span className="text-xs text-muted-foreground">fallback</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <Avatar fallback="RK" size="lg" />
+        <span className="text-xs text-muted-foreground">custom</span>
+      </div>
+    </div>
+  );
+}
+
+function BaseModalPreview(): JSX.Element {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <Button
+        label="Open Modal"
+        variant={ButtonVariant.Outlined}
+        onClick={() => setIsOpen(true)}
+      />
+
+      <BaseModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Edit Profile"
+        description="Update profile settings"
+        onSave={() => setIsOpen(false)}
+        customButtons={[
+          {
+            label: 'Preview',
+            onClick: () => undefined,
+            variant: ButtonVariant.Outlined,
+          },
+        ]}
+      >
+        <div className="text-sm text-foreground">Modal content goes here</div>
+      </BaseModal>
+    </div>
+  );
+}
+
+function BaseTablePreview(): JSX.Element {
+  type ServiceRow = {
+    id: number;
+    name: string;
+    owner: string;
+    status: 'active' | 'inactive' | 'degraded';
+    tags: string[];
+    region: string;
+    uptime: string;
+    errorRate: string;
+    healthScore: string;
+    monthlyCost: string;
+    alertsCount: number;
+    hasDrift: boolean;
+    createdAt: string;
+    logoUrl: string;
+  };
+
+  type QueryParams = {
+    query: string;
+    page: number;
+    size: number;
+  };
+
+  type MockScenario = 'normal' | 'slow' | 'empty' | 'error' | 'noisy';
+
+  const DEFAULT_QUERY_PARAMS: QueryParams = {
+    query: '',
+    page: 1,
+    size: 5,
+  };
+
+  const DEFAULT_SORT_BY = 'name';
+  const DEFAULT_SORT_ORDER: 'asc' | 'desc' = 'asc';
+
+  const allRows: ServiceRow[] = useMemo(
+    () => [
+      {
+        id: 1,
+        name: 'Payments API',
+        owner: 'Alex Rivera',
+        status: 'active',
+        tags: ['pci', 'critical'],
+        region: 'us-east',
+        uptime: '99.97%',
+        errorRate: '0.03%',
+        healthScore: 'A',
+        monthlyCost: '$18.4k',
+        alertsCount: 1,
+        hasDrift: false,
+        createdAt: '2025-02-18',
+        logoUrl: '/tech-icons/tanstack.svg',
+      },
+      {
+        id: 2,
+        name: 'Audit Event Bus',
+        owner: 'Jordan Kim',
+        status: 'degraded',
+        tags: ['sox', 'stream'],
+        region: 'us-west',
+        uptime: '98.20%',
+        errorRate: '0.42%',
+        healthScore: 'C',
+        monthlyCost: '$9.2k',
+        alertsCount: 6,
+        hasDrift: true,
+        createdAt: '2024-11-10',
+        logoUrl: '/tech-icons/redux.svg',
+      },
+      {
+        id: 3,
+        name: 'Identity Gateway',
+        owner: 'Sam Lee',
+        status: 'active',
+        tags: ['auth', 'critical'],
+        region: 'eu-central',
+        uptime: '99.91%',
+        errorRate: '0.05%',
+        healthScore: 'A',
+        monthlyCost: '$12.7k',
+        alertsCount: 0,
+        hasDrift: false,
+        createdAt: '2024-09-03',
+        logoUrl: '/tech-icons/shadcnui.svg',
+      },
+      {
+        id: 4,
+        name: 'Catalog Sync',
+        owner: 'Taylor Morgan',
+        status: 'inactive',
+        tags: ['batch', 'internal'],
+        region: 'ap-southeast',
+        uptime: '95.10%',
+        errorRate: '0.96%',
+        healthScore: 'D',
+        monthlyCost: '$4.1k',
+        alertsCount: 4,
+        hasDrift: true,
+        createdAt: '2023-12-01',
+        logoUrl: '',
+      },
+      {
+        id: 5,
+        name: 'Notification Hub',
+        owner: 'Casey Patel',
+        status: 'active',
+        tags: ['messaging', 'customer'],
+        region: 'us-east',
+        uptime: '99.84%',
+        errorRate: '0.11%',
+        healthScore: 'B',
+        monthlyCost: '$7.8k',
+        alertsCount: 2,
+        hasDrift: false,
+        createdAt: '2024-04-22',
+        logoUrl: '/tech-icons/tailwindcss.svg',
+      },
+      {
+        id: 6,
+        name: 'Settlement Worker',
+        owner: 'Riley Chen',
+        status: 'degraded',
+        tags: ['finance', 'batch'],
+        region: 'eu-west',
+        uptime: '97.48%',
+        errorRate: '0.61%',
+        healthScore: 'C',
+        monthlyCost: '$10.9k',
+        alertsCount: 7,
+        hasDrift: true,
+        createdAt: '2025-01-11',
+        logoUrl: '',
+      },
+      {
+        id: 7,
+        name: 'Fraud Rules Engine',
+        owner: 'Drew Santos',
+        status: 'active',
+        tags: ['ml', 'critical'],
+        region: 'us-central',
+        uptime: '99.75%',
+        errorRate: '0.16%',
+        healthScore: 'B',
+        monthlyCost: '$15.6k',
+        alertsCount: 3,
+        hasDrift: false,
+        createdAt: '2024-10-28',
+        logoUrl: '/tech-icons/zod.svg',
+      },
+      {
+        id: 8,
+        name: 'Search Aggregator',
+        owner: 'Morgan Blake',
+        status: 'inactive',
+        tags: ['search', 'platform'],
+        region: 'eu-north',
+        uptime: '96.33%',
+        errorRate: '0.80%',
+        healthScore: 'D',
+        monthlyCost: '$5.7k',
+        alertsCount: 5,
+        hasDrift: true,
+        createdAt: '2023-06-14',
+        logoUrl: '/tech-icons/reacthookform.svg',
+      },
+      {
+        id: 9,
+        name: 'Billing Ledger',
+        owner: 'Jamie Wright',
+        status: 'active',
+        tags: ['finance', 'critical'],
+        region: 'us-east',
+        uptime: '99.88%',
+        errorRate: '0.09%',
+        healthScore: 'A',
+        monthlyCost: '$19.1k',
+        alertsCount: 1,
+        hasDrift: false,
+        createdAt: '2024-02-05',
+        logoUrl: '/tech-icons/tanstack.svg',
+      },
+      {
+        id: 10,
+        name: 'Webhook Relay',
+        owner: 'Avery Cole',
+        status: 'degraded',
+        tags: ['integration', 'external'],
+        region: 'us-west',
+        uptime: '97.02%',
+        errorRate: '0.55%',
+        healthScore: 'C',
+        monthlyCost: '$6.4k',
+        alertsCount: 8,
+        hasDrift: true,
+        createdAt: '2024-07-30',
+        logoUrl: '/tech-icons/redux.svg',
+      },
+      {
+        id: 11,
+        name: 'Role Directory',
+        owner: 'Parker Reed',
+        status: 'active',
+        tags: ['rbac', 'internal'],
+        region: 'eu-central',
+        uptime: '99.69%',
+        errorRate: '0.20%',
+        healthScore: 'B',
+        monthlyCost: '$3.3k',
+        alertsCount: 2,
+        hasDrift: false,
+        createdAt: '2023-10-09',
+        logoUrl: '/tech-icons/shadcnui.svg',
+      },
+      {
+        id: 12,
+        name: 'Inventory Cache',
+        owner: 'Quinn Harper',
+        status: 'inactive',
+        tags: ['cache', 'platform'],
+        region: 'ap-southeast',
+        uptime: '95.88%',
+        errorRate: '0.91%',
+        healthScore: 'D',
+        monthlyCost: '$2.8k',
+        alertsCount: 4,
+        hasDrift: true,
+        createdAt: '2022-12-19',
+        logoUrl: '',
+      },
+    ],
+    [],
+  );
+
+  const [queryParams, setQueryParams] =
+    useState<QueryParams>(DEFAULT_QUERY_PARAMS);
+  const [scenario, setScenario] = useState<MockScenario>('normal');
+  const [sortBy, setSortBy] = useState<string | undefined>(DEFAULT_SORT_BY);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | undefined>(
+    DEFAULT_SORT_ORDER,
+  );
+  const [rows, setRows] = useState<ServiceRow[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const [selectedRows, setSelectedRows] = useState<ServiceRow[]>([]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function load() {
+      setIsLoading(true);
+      setErrorText(null);
+      await wait(scenario === 'slow' ? 900 : 240);
+
+      if (scenario === 'error') {
+        if (!isCancelled) {
+          setRows([]);
+          setTotalItems(0);
+          setTotalPages(1);
+          setIsLoading(false);
+          setErrorText(
+            'Mock API error: unable to fetch services. Try switching scenario back to normal.',
+          );
+        }
+        return;
+      }
+
+      const searchQuery = queryParams.query.toLowerCase().trim();
+
+      const sourceRows =
+        scenario === 'noisy'
+          ? allRows.map((item, index) => ({
+              ...item,
+              alertsCount: getNoisyAlertCount(item.alertsCount, index),
+              hasDrift: index % 2 === 0,
+              status: getNoisyStatus(item.status, index),
+            }))
+          : allRows;
+
+      const filtered = sourceRows.filter((item) =>
+        matchesServiceSearch(item, searchQuery),
+      );
+
+      const effectiveRows = scenario === 'empty' ? [] : filtered;
+
+      const sorted = [...effectiveRows].sort((left, right) => {
+        if (!sortBy) {
+          return 0;
+        }
+
+        const leftValue = toComparableString(
+          (left as Record<string, unknown>)[sortBy],
+        );
+        const rightValue = toComparableString(
+          (right as Record<string, unknown>)[sortBy],
+        );
+        const result = leftValue.localeCompare(rightValue, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        });
+
+        return sortOrder === 'desc' ? -result : result;
+      });
+
+      const calculatedTotalPages = Math.max(
+        1,
+        Math.ceil(sorted.length / queryParams.size),
+      );
+      const safePage = Math.min(queryParams.page, calculatedTotalPages);
+      const start = (safePage - 1) * queryParams.size;
+      const pagedRows = sorted.slice(start, start + queryParams.size);
+
+      if (!isCancelled) {
+        setRows(pagedRows);
+        setTotalItems(sorted.length);
+        setTotalPages(calculatedTotalPages);
+        setIsLoading(false);
+
+        if (safePage !== queryParams.page) {
+          setQueryParams((previous) => ({
+            ...previous,
+            page: safePage,
+          }));
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [allRows, queryParams, scenario, sortBy, sortOrder]);
+
+  const columns = useMemo<Column<ServiceRow>[]>(
+    () => [
+      {
+        id: 'logo',
+        header: 'Logo',
+        accessorKey: 'logoUrl' as const,
+        type: CellType.IMAGE,
+      },
+      {
+        id: 'name',
+        header: 'Service',
+        accessorKey: 'name' as const,
+        type: CellType.TEXT,
+        sortable: true,
+      },
+      {
+        id: 'owner',
+        header: 'Owner',
+        accessorKey: 'owner' as const,
+        type: CellType.AVATAR,
+        showFrom: 'md' as const,
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        accessorKey: 'status' as const,
+        type: CellType.STATUS,
+        sortable: true,
+        styler: (value: unknown) => {
+          if (value === 'active') {
+            return 'bg-green-100 text-green-700';
+          }
+          if (value === 'degraded') {
+            return 'bg-amber-100 text-amber-700';
+          }
+          return 'bg-slate-100 text-slate-700';
+        },
+      },
+      {
+        id: 'tags',
+        header: 'Tags',
+        accessorKey: 'tags' as const,
+        type: CellType.MULTI_STATUS,
+        showFrom: 'lg' as const,
+      },
+      {
+        id: 'region',
+        header: 'Region',
+        accessorKey: 'region' as const,
+        type: CellType.CHIP,
+        showFrom: 'lg' as const,
+      },
+      {
+        id: 'uptime',
+        header: 'Uptime',
+        accessorKey: 'uptime' as const,
+        type: CellType.DIMENSION,
+        sortable: true,
+      },
+      {
+        id: 'monthlyCost',
+        header: 'Cost',
+        accessorKey: 'monthlyCost' as const,
+        type: CellType.DIMENSION,
+      },
+      {
+        id: 'drift',
+        header: 'Drift',
+        accessorKey: 'hasDrift' as const,
+        type: CellType.BOOLEAN,
+      },
+      {
+        id: 'createdAt',
+        header: 'Created',
+        accessorKey: 'createdAt' as const,
+        type: CellType.DATE,
+        sortable: true,
+        showFrom: 'xl' as const,
+      },
+      {
+        id: 'alertsIcon',
+        header: 'Alerts',
+        accessorKey: 'alertsCount' as const,
+        type: CellType.ICON,
+        iconNameMapper: (value: unknown) => {
+          if (typeof value === 'number' && value > 5) {
+            return 'AlertTriangle';
+          }
+          if (typeof value === 'number' && value > 0) {
+            return 'TriangleAlert';
+          }
+          return 'ShieldCheck';
+        },
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        type: CellType.ACTIONS,
+        actions: [
+          {
+            label: 'Inspect',
+            iconName: 'Search' as const,
+            variant: 'primary',
+            onClick: () => undefined,
+          },
+          {
+            label: 'Restart',
+            iconName: 'RotateCcw' as const,
+            variant: 'warning',
+            onClick: () => undefined,
+          },
+          {
+            label: 'Disable',
+            iconName: 'ShieldOff' as const,
+            variant: 'danger',
+            onClick: () => undefined,
+          },
+        ],
+      },
+    ],
+    [],
+  );
+
+  function resetDemoState() {
+    setScenario('normal');
+    setQueryParams(DEFAULT_QUERY_PARAMS);
+    setSortBy(DEFAULT_SORT_BY);
+    setSortOrder(DEFAULT_SORT_ORDER);
+    setSelectedRows([]);
+    setErrorText(null);
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <label className="text-xs text-muted-foreground">
+            <span>Scenario</span>
+            <select
+              className="ml-2 rounded-md border bg-background px-2 py-1 text-xs"
+              value={scenario}
+              onChange={(event) => {
+                setScenario(event.target.value as MockScenario);
+                setQueryParams((previous) => ({ ...previous, page: 1 }));
+              }}
+            >
+              <option value="normal">normal</option>
+              <option value="slow">slow response</option>
+              <option value="empty">empty result</option>
+              <option value="error">error response</option>
+              <option value="noisy">high alerts/noisy data</option>
+            </select>
+          </label>
+          <Input
+            name="serviceFilter"
+            value={queryParams.query}
+            onChange={(event) => {
+              const nextQuery = event.target.value;
+              setQueryParams((previous) => ({
+                ...previous,
+                query: nextQuery,
+                page: 1,
+              }));
+            }}
+            placeholder="Filter by service, owner, region, or tag"
+            className="max-w-[340px]"
+          />
+          <button
+            type="button"
+            className="rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted"
+            onClick={resetDemoState}
+          >
+            Reset demo
+          </button>
+        </div>
+      </div>
+
+      {errorText ? (
+        <div className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {errorText}
+        </div>
+      ) : null}
+
+      <BaseTable<ServiceRow>
+        data={rows}
+        columns={columns}
+        isLoading={isLoading}
+        totalItems={totalItems}
+        totalPages={totalPages}
+        queryParams={queryParams}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        enableSelection
+        onSelectionChange={setSelectedRows}
+        onQueryParamsChange={setQueryParams}
+        onSortChange={(nextSortBy, nextSortOrder) => {
+          setSortBy(nextSortBy);
+          setSortOrder(nextSortOrder);
+          setQueryParams((previous) => ({
+            ...previous,
+            page: 1,
+          }));
+        }}
+      />
+
+      <p className="text-xs text-muted-foreground">
+        Scenario: {scenario} | Selected rows: {selectedRows.length}
+      </p>
+    </div>
+  );
+}
+
+function ButtonPreview(): JSX.Element {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        label="Primary"
+        variant={ButtonVariant.Primary}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Default"
+        variant={ButtonVariant.Default}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Outlined"
+        variant={ButtonVariant.Outlined}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Dashed"
+        variant={ButtonVariant.OUTLINE}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Left Icon"
+        leftIcon={<Download className="h-4 w-4" />}
+        variant={ButtonVariant.GHOST}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Right Icon"
+        rightIcon={<Download className="h-4 w-4" />}
+        variant={ButtonVariant.OUTLINE}
+        onClick={() => undefined}
+      />
+      <Button
+        label="Delete"
+        variant={ButtonVariant.Destructive}
+        onClick={() => undefined}
+      />
+    </div>
+  );
+}
+
+function CheckboxPreview(): JSX.Element {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <Checkbox
+      name="acceptTerms"
+      label="Terms"
+      title="I agree to the terms"
+      checked={checked}
+      onCheckChange={(next) => setChecked(next)}
+    />
+  );
+}
+
+const CHART_DEMO_DATA = [
+  { month: 'Jan', revenue: 12_400, cost: 8_100 },
+  { month: 'Feb', revenue: 18_900, cost: 10_700 },
+  { month: 'Mar', revenue: 22_300, cost: 13_400 },
+  { month: 'Apr', revenue: 20_100, cost: 12_900 },
+  { month: 'May', revenue: 26_500, cost: 15_200 },
+  { month: 'Jun', revenue: 31_200, cost: 17_800 },
+];
+
+const CHART_DEMO_CONFIG: ChartConfig = {
+  revenue: { label: 'Revenue', color: 'hsl(var(--rk-chart-1))' },
+  cost: { label: 'Cost', color: 'hsl(var(--rk-chart-2))' },
+};
+
+const CHART_PIE_DATA = [
+  { segment: 'Web', value: 540 },
+  { segment: 'Mobile', value: 320 },
+  { segment: 'API', value: 220 },
+  { segment: 'Partners', value: 120 },
+];
+
+const CHART_PIE_CONFIG: ChartConfig = {
+  Web: { label: 'Web', color: 'hsl(var(--rk-chart-1))' },
+  Mobile: { label: 'Mobile', color: 'hsl(var(--rk-chart-2))' },
+  API: { label: 'API', color: 'hsl(var(--rk-chart-3))' },
+  Partners: { label: 'Partners', color: 'hsl(var(--rk-chart-4))' },
+};
+
+const CHART_SERIES = [{ dataKey: 'revenue' }, { dataKey: 'cost' }] as const;
+
+type ChartTileProps = Readonly<{
+  title: string;
+  children: JSX.Element;
+}>;
+
+function ChartTile({ title, children }: ChartTileProps): JSX.Element {
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-border bg-card p-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function ChartPreview(): JSX.Element {
+  return (
+    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
+      <ChartTile title="Line">
+        <Chart
+          type={ChartVariant.Line}
+          data={CHART_DEMO_DATA}
+          config={CHART_DEMO_CONFIG}
+          series={CHART_SERIES}
+          xAxisKey="month"
+          smooth
+          showDots
+          height={200}
+        />
+      </ChartTile>
+      <ChartTile title="Bar">
+        <Chart
+          type={ChartVariant.Bar}
+          data={CHART_DEMO_DATA}
+          config={CHART_DEMO_CONFIG}
+          series={CHART_SERIES}
+          xAxisKey="month"
+          height={200}
+        />
+      </ChartTile>
+      <ChartTile title="Area (stacked)">
+        <Chart
+          type={ChartVariant.Area}
+          data={CHART_DEMO_DATA}
+          config={CHART_DEMO_CONFIG}
+          series={CHART_SERIES}
+          xAxisKey="month"
+          smooth
+          stacked
+          height={200}
+        />
+      </ChartTile>
+      <ChartTile title="Pie (donut)">
+        <Chart
+          type={ChartVariant.Pie}
+          data={CHART_PIE_DATA}
+          config={CHART_PIE_CONFIG}
+          dataKey="value"
+          nameKey="segment"
+          innerRadius={45}
+          outerRadius={80}
+          height={200}
+        />
+      </ChartTile>
+    </div>
+  );
+}
+
+function TogglePreview(): JSX.Element {
+  const [enabled, setEnabled] = useState(true);
+
+  return (
+    <Toggle
+      name="emailAlerts"
+      label="Notifications"
+      title="Email alerts"
+      checked={enabled}
+      onToggleChange={(next: boolean) => setEnabled(next)}
+    />
+  );
+}
+
+function ToastPreview(): JSX.Element {
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          label="Default"
+          variant={ButtonVariant.Outlined}
+          onClick={() => toast('Project synced')}
+        />
+        <Button
+          label="Success"
+          variant={ButtonVariant.Outlined}
+          onClick={() =>
+            toast.success('Saved', { description: 'Your changes are live.' })
+          }
+        />
+        <Button
+          label="Error"
+          variant={ButtonVariant.Outlined}
+          onClick={() =>
+            toast.error('Could not save', {
+              description: 'Check your connection and retry.',
+            })
+          }
+        />
+        <Button
+          label="Warning"
+          variant={ButtonVariant.Outlined}
+          onClick={() => toast.warning('Heads up: write quota is at 80%')}
+        />
+        <Button
+          label="Info"
+          variant={ButtonVariant.Outlined}
+          onClick={() => toast.info('A new release is available')}
+        />
+        <Button
+          label="Loading"
+          variant={ButtonVariant.Outlined}
+          onClick={() => toast.loading('Provisioning environment...')}
+        />
+        <Button
+          label="Promise"
+          variant={ButtonVariant.Outlined}
+          onClick={() =>
+            toast.promise(
+              new Promise<{ id: string }>((resolve) => {
+                setTimeout(() => resolve({ id: 'ABC123' }), 1200);
+              }),
+              {
+                loading: 'Deploying...',
+                success: (data) => `Deployed ${data.id}`,
+                error: 'Deployment failed',
+              },
+            )
+          }
+        />
+        <Button
+          label="Dismiss All"
+          variant={ButtonVariant.GHOST}
+          onClick={() => toast.dismiss()}
+        />
+      </div>
+      <Toaster />
+    </div>
+  );
+}
+
+function ChipPreview(): JSX.Element {
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) {
+    return (
+      <Button
+        label="Reset Chip"
+        variant={ButtonVariant.OUTLINE}
+        onClick={() => setVisible(true)}
+      />
+    );
+  }
+
+  return (
+    <Chip
+      label="Synced"
+      icon={<Circle className="h-3 w-3" />}
+      variant="secondary"
+      size="md"
+      onClick={() => setVisible(false)}
+    />
+  );
+}
+
+function DatePickerPreview(): JSX.Element {
+  const [value, setValue] = useState('2026-04-18');
+
+  return (
+    <div style={{ maxWidth: 320 }}>
+      <DatePicker
+        name="startDate"
+        label="Start Date"
+        value={value}
+        helperText="Choose a start date"
+        onChange={(change) => {
+          setValue(change.target.value ?? '');
+        }}
+      />
+    </div>
+  );
+}
+
+function DetailsCardPreview(): JSX.Element {
+  type UserDetails = {
+    id: string;
+    email: string;
+  };
+
+  return (
+    <DetailsCard<UserDetails>
+      title="User Details"
+      icon={FileText}
+      isLoading={false}
+      data={{ id: '42', email: 'owner@company.com' }}
+      tabs={[
+        {
+          key: 'profile',
+          label: 'Profile',
+          component: <div>Profile content</div>,
+        },
+        {
+          key: 'security',
+          label: 'Security',
+          component: <div>Security content</div>,
+        },
+      ]}
+      onSave={() => undefined}
+      onDelete={() => undefined}
+      onClose={() => undefined}
+      customButtons={[
+        {
+          label: 'Archive',
+          icon: Archive,
+          variant: ButtonVariant.Outlined,
+          onClick: () => undefined,
+        },
+      ]}
+    />
+  );
+}
+
+function DropDownPreview(): JSX.Element {
+  const [country, setCountry] = useState('');
+
+  return (
+    <div style={{ maxWidth: 320 }}>
+      <DropDown
+        label="Country"
+        value={country}
+        placeholder="Select country"
+        options={[
+          { label: 'United States', value: 'US' },
+          { label: 'Canada', value: 'CA' },
+        ]}
+        onChange={(next) => setCountry(next)}
+      />
+    </div>
+  );
+}
+
+const formPreviewCardStyle = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 20,
+  maxWidth: 440,
+  margin: '0 auto',
+  padding: '28px 28px 32px',
+  borderRadius: 12,
+  border: '1px solid var(--rk-border)',
+  background: 'var(--rk-card)',
+  color: 'var(--rk-card-foreground)',
+  boxShadow:
+    '0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08)',
+};
+
+const formPreviewHeaderStyle = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 4,
+};
+
+const formPreviewTitleStyle = {
+  fontSize: 16,
+  fontWeight: 600,
+  lineHeight: 1.3,
+  letterSpacing: '-0.01em',
+  margin: 0,
+};
+
+const formPreviewSubtitleStyle = {
+  fontSize: 13,
+  lineHeight: 1.45,
+  color: 'var(--rk-muted-foreground)',
+  margin: 0,
+};
+
+type FormPreviewValues = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
+
+function FormPreview(): JSX.Element {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined,
+  );
+
+  const form = useFormHandlers<FormPreviewValues>({
+    initialValues: { email: '', password: '', remember: false },
+    onSubmit: async (values) => {
+      setSuccessMessage(undefined);
+      setIsSubmitting(true);
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      setIsSubmitting(false);
+      setSuccessMessage(`Signed in as ${values.email || 'demo@rapidkit.dev'}`);
+    },
+  });
+
+  return (
+    <div style={formPreviewCardStyle}>
+      <header style={formPreviewHeaderStyle}>
+        <h3 style={formPreviewTitleStyle}>Sign in to RapidKit</h3>
+        <p style={formPreviewSubtitleStyle}>
+          Welcome back. Use your work email to continue.
+        </p>
+      </header>
+      <Form
+        form={form}
+        isSubmitting={isSubmitting}
+        successMessage={successMessage}
+      >
+        <div className="space-y-4">
+          <FormField name="email" label="Email" required>
+            <Input type="email" placeholder="name@company.com" />
+          </FormField>
+          <FormField name="password" label="Password" required>
+            <Input type="password" placeholder="••••••••" />
+          </FormField>
+          <FormField name="remember">
+            <Checkbox title="Remember me on this device" />
+          </FormField>
+        </div>
+        <div className="mt-6">
+          <FormSubmit
+            label={isSubmitting ? 'Signing in…' : 'Sign in'}
+            className="w-full justify-center"
+          />
+        </div>
+      </Form>
+    </div>
+  );
+}
+
+const formFieldPreviewSectionStyle = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 8,
+};
+
+const formFieldPreviewBadgeStyle = {
+  alignSelf: 'flex-start' as const,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.04em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--rk-muted-foreground)',
+  background: 'var(--rk-muted)',
+  padding: '3px 8px',
+  borderRadius: 999,
+};
+
+const formFieldPreviewDividerStyle = {
+  height: 1,
+  background: 'var(--rk-border)',
+  margin: '4px 0',
+};
+
+const renderPropEditorStyle = {
+  width: '100%',
+  resize: 'vertical' as const,
+  borderRadius: 8,
+  border: '1px solid var(--rk-border)',
+  background: 'var(--rk-background)',
+  color: 'var(--rk-foreground)',
+  padding: '10px 12px',
+  fontFamily: 'inherit',
+  fontSize: 13,
+  lineHeight: 1.5,
+  outline: 'none',
+  minHeight: 84,
+};
+
+type FormFieldPreviewValues = {
+  email: string;
+  bio: string;
+};
+
+function FormFieldPreview(): JSX.Element {
+  const form = useFormHandlers<FormFieldPreviewValues>({
+    initialValues: { email: '', bio: '' },
+  });
+
+  return (
+    <div style={formPreviewCardStyle}>
+      <header style={formPreviewHeaderStyle}>
+        <h3 style={formPreviewTitleStyle}>Two ways to bind a field</h3>
+        <p style={formPreviewSubtitleStyle}>
+          Pass an element child for primitives, or a render-prop for custom
+          editors.
+        </p>
+      </header>
+      <Form form={form}>
+        <div className="space-y-5">
+          <section style={formFieldPreviewSectionStyle}>
+            <span style={formFieldPreviewBadgeStyle}>Element child</span>
+            <FormField name="email" label="Email" required>
+              <Input type="email" placeholder="name@company.com" />
+            </FormField>
+          </section>
+          <div style={formFieldPreviewDividerStyle} />
+          <section style={formFieldPreviewSectionStyle}>
+            <span style={formFieldPreviewBadgeStyle}>Render-prop child</span>
+            <FormField
+              name="bio"
+              label="Bio"
+              helperText="The render-prop receives the full field args object."
+            >
+              {(field) => (
+                <textarea
+                  id={field.id}
+                  name={field.name}
+                  value={String(field.value ?? '')}
+                  onChange={(event) =>
+                    form.setFieldValue('bio', event.target.value)
+                  }
+                  onBlur={field.onBlur}
+                  placeholder="Tell us a little about yourself"
+                  rows={3}
+                  style={renderPropEditorStyle}
+                />
+              )}
+            </FormField>
+          </section>
+        </div>
+      </Form>
+    </div>
+  );
+}
+
+const formSubmitToggleRowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 12,
+  paddingBottom: 16,
+  borderBottom: '1px solid var(--rk-border)',
+};
+
+const formSubmitToggleLabelStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  fontSize: 13,
+  fontWeight: 500,
+  color: 'var(--rk-foreground)',
+  cursor: 'pointer' as const,
+  margin: 0,
+};
+
+const formSubmitToggleHintStyle = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--rk-muted-foreground)',
+};
+
+type FormSubmitPreviewValues = {
+  email: string;
+};
+
+function FormSubmitPreview(): JSX.Element {
+  const [simulateSubmitting, setSimulateSubmitting] = useState(false);
+
+  const form = useFormHandlers<FormSubmitPreviewValues>({
+    initialValues: { email: '' },
+  });
+
+  return (
+    <div style={formPreviewCardStyle}>
+      <header style={formPreviewHeaderStyle}>
+        <h3 style={formPreviewTitleStyle}>Submit button with context state</h3>
+        <p style={formPreviewSubtitleStyle}>
+          FormSubmit reads <code>isSubmitting</code> from{' '}
+          <code>&lt;Form&gt;</code> and toggles loading + disabled
+          automatically.
+        </p>
+      </header>
+      <label
+        style={formSubmitToggleRowStyle}
+        htmlFor="form-submit-preview-toggle"
+      >
+        <span style={formSubmitToggleLabelStyle}>
+          <input
+            id="form-submit-preview-toggle"
+            type="checkbox"
+            checked={simulateSubmitting}
+            onChange={(event) => setSimulateSubmitting(event.target.checked)}
+          />
+          Simulate submitting state
+        </span>
+        <span style={formSubmitToggleHintStyle}>
+          {simulateSubmitting ? 'on' : 'off'}
+        </span>
+      </label>
+      <Form form={form} isSubmitting={simulateSubmitting}>
+        <div className="space-y-4">
+          <FormField name="email" label="Email" required>
+            <Input type="email" placeholder="name@company.com" />
+          </FormField>
+        </div>
+        <div className="mt-6">
+          <FormSubmit label="Sign in" className="w-full justify-center" />
+        </div>
+      </Form>
+    </div>
+  );
+}
+
+function IconPreview(): JSX.Element {
+  return (
+    <Icon
+      icon={Bell}
+      className="h-4 w-4 text-muted-foreground"
+      aria-label="Alerts"
+    />
+  );
+}
+
+function ImagePreview(): JSX.Element {
+  const previewImageSrc =
+    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=512&q=80';
+
+  return (
+    <div className="flex items-end gap-4">
+      <div className="flex flex-col items-center gap-1">
+        <Image src={previewImageSrc} alt="Nature preview small" size="sm" />
+        <span className="text-xs text-muted-foreground">sm</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <Image src={previewImageSrc} alt="Nature preview medium" size="md" />
+        <span className="text-xs text-muted-foreground">md</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <Image src={previewImageSrc} alt="Nature preview large" size="lg" />
+        <span className="text-xs text-muted-foreground">lg</span>
+      </div>
+    </div>
+  );
+}
+
+function LogoPreview(): JSX.Element {
+  return (
+    <div className="space-y-3 p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-h-10 items-center">
+          <Logo
+            size="small"
+            open
+            showIcon
+            showText
+            logoSrc={rapidKitLogoSrc}
+            iconSrc={rapidKitLogoSrc}
+            alt="RapidKit logo"
+          />
+        </div>
+        <div
+          className="hidden h-10 w-px bg-border sm:block"
+          aria-hidden="true"
+        />
+        <div className="flex min-h-10 items-center">
+          <Logo
+            size="medium"
+            open={false}
+            showIcon
+            showText
+            logoSrc={rapidKitLogoSrc}
+            iconSrc={rapidKitLogoSrc}
+            alt="RapidKit collapsed logo"
+          />
+        </div>
+        <div
+          className="hidden h-10 w-px bg-border sm:block"
+          aria-hidden="true"
+        />
+        <div className="flex min-h-10 items-center">
+          <Logo
+            size="large"
+            open
+            showIcon
+            showText
+            logoSrc={rapidKitLogoSrc}
+            iconSrc={rapidKitLogoSrc}
+            alt="RapidKit large logo"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavMenuPreview(): JSX.Element {
+  return (
+    <div className="rounded-md border border-border bg-background p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Logo
+            size="small"
+            open={false}
+            showIcon
+            showText
+            logoSrc={rapidKitLogoSrc}
+            iconSrc={rapidKitLogoSrc}
+            alt="RapidKit"
+          />
+          <span className="text-sm font-medium text-foreground">
+            Operations Console
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-1">EU-West-1</span>
+          <span className="rounded-full bg-muted px-2 py-1">7 Alerts</span>
+        </div>
+      </div>
+
+      <div className="mt-3 border-t border-border pt-3">
+        <NavMenu
+          ariaLabel="Primary dashboard navigation"
+          sections={[
+            {
+              label: 'Dashboard',
+              items: [
+                {
+                  label: 'Overview',
+                  href: '#',
+                  icon: Home,
+                  description: 'Live system health, SLAs, and key KPIs.',
+                },
+                {
+                  label: 'Incidents',
+                  href: '#',
+                  icon: Bell,
+                  description: 'Active incidents and escalation history.',
+                },
+                {
+                  label: 'Usage Reports',
+                  href: '#',
+                  icon: BarChart3,
+                  description: 'Traffic and cost analytics by environment.',
+                },
+              ],
+            },
+            {
+              label: 'Workloads',
+              items: [
+                {
+                  label: 'Services',
+                  href: '#',
+                  icon: FolderKanban,
+                  description: 'Runtime status and deployment health.',
+                },
+                {
+                  label: 'Data Pipelines',
+                  href: '#',
+                  icon: Archive,
+                  description: 'Batch and streaming pipeline operations.',
+                },
+                {
+                  label: 'Environments',
+                  href: '#',
+                  icon: Circle,
+                  disabled: true,
+                  description: 'Cross-environment controls (coming soon).',
+                },
+              ],
+            },
+            {
+              label: 'Administration',
+              items: [
+                {
+                  label: 'Team Access',
+                  href: '#',
+                  icon: Users,
+                  description: 'Roles, permissions, and approval flows.',
+                },
+                {
+                  label: 'Audit Logs',
+                  href: '#',
+                  icon: FileText,
+                  description: 'Policy, access, and configuration audit trail.',
+                },
+              ],
+            },
+            {
+              label: 'Account',
+              items: [
+                {
+                  label: 'Profile',
+                  href: '#',
+                  icon: Users,
+                },
+                {
+                  label: 'API Keys',
+                  href: '#',
+                  icon: Settings,
+                },
+                {
+                  label: 'Billing',
+                  href: '#',
+                  icon: Download,
+                  disabled: true,
+                },
+              ],
+            },
+            {
+              label: 'Resources',
+              items: [
+                {
+                  label: 'Documentation',
+                  href: 'https://rapidset.github.io/RapidKit/components/',
+                  icon: FileText,
+                  external: true,
+                  description: 'Component reference and implementation guides.',
+                },
+                {
+                  label: 'API Reference',
+                  href: '#',
+                  icon: PanelLeft,
+                  description: 'Schemas, SDK examples, and endpoints.',
+                },
+              ],
+            },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+
+function InputPreview(): JSX.Element {
+  const [email, setEmail] = useState('');
+
+  return (
+    <div style={{ maxWidth: 360 }}>
+      <Input
+        name="email"
+        label="Email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder="name@company.com"
+      />
+    </div>
+  );
+}
+
+function TextAreaPreview(): JSX.Element {
+  const [notes, setNotes] = useState('');
+
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <TextArea
+        name="notes"
+        label="Notes"
+        value={notes}
+        onChange={(event) => setNotes(event.target.value)}
+        placeholder="Write implementation notes"
+        helperText="Keep this concise and actionable."
+      />
+    </div>
+  );
+}
+
+function PagePreview(): JSX.Element {
+  return (
+    <div>
+      <Page
+        searchPlaceholder="Search users"
+        onSearch={() => undefined}
+        actions={[
+          {
+            name: 'Create User',
+            onClick: () => undefined,
+            icon: Plus,
+            variant: ButtonVariant.Default,
+          },
+        ]}
+        filterSlot={
+          <div className="text-xs text-muted-foreground">Active only</div>
+        }
+      >
+        <div className="rounded-md border p-4">Page content</div>
+      </Page>
+    </div>
+  );
+}
+
+function SearchPreview(): JSX.Element {
+  const [value, setValue] = useState('');
+
+  return (
+    <div style={{ maxWidth: 320 }}>
+      <Search placeholder="Search users" value={value} onChange={setValue} />
+    </div>
+  );
+}
+
+function SideBarPreview(): JSX.Element {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <div className="relative rounded-md border border-border bg-background">
+      <button
+        type="button"
+        aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+        className={`absolute top-3 z-20 inline-flex h-8 w-8 items-center justify-center rounded-md bg-background transition-[left] duration-200 hover:bg-muted ${
+          isOpen ? 'left-[calc(16rem+0.25rem)]' : 'left-[calc(3rem+0.25rem)]'
+        }`}
+        onClick={() => setIsOpen((previous) => !previous)}
+      >
+        <Icon
+          icon={PanelLeft}
+          className="h-4 w-4"
+          aria-label="Toggle sidebar"
+        />
+      </button>
+      <div className="relative h-[28rem] overflow-hidden [transform:translateZ(0)] md:h-[32rem]">
+        <SideBar
+          providerProps={{
+            className: '!min-h-full !w-full',
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          }}
+          brand={
+            <Logo
+              open={isOpen}
+              size="medium"
+              logoSrc={rapidKitLogoSrc}
+              iconSrc={rapidKitLogoSrc}
+              text="RapidKit"
+              alt="RapidKit logo"
+            />
+          }
+          menuItems={[
+            {
+              key: 'dashboard',
+              label: 'Dashboard',
+              group: 'Core',
+              icon: Home,
+              isActive: true,
+              badge: '12',
+              onSelect: () => undefined,
+            },
+            {
+              key: 'analytics',
+              label: 'Analytics',
+              group: 'Core',
+              icon: BarChart3,
+              onSelect: () => undefined,
+            },
+            {
+              key: 'billing',
+              label: 'Billing',
+              group: 'Operations',
+              icon: FolderKanban,
+              onSelect: () => undefined,
+            },
+            {
+              key: 'support',
+              label: 'Support',
+              group: 'Operations',
+              icon: LifeBuoy,
+              onSelect: () => undefined,
+            },
+            {
+              key: 'settings',
+              label: 'Settings',
+              group: 'Administration',
+              icon: Settings,
+              onSelect: () => undefined,
+              items: [
+                {
+                  key: 'users',
+                  label: 'Users',
+                  isActive: true,
+                  onSelect: () => undefined,
+                },
+                {
+                  key: 'roles',
+                  label: 'Roles',
+                  onSelect: () => undefined,
+                },
+              ],
+            },
+          ]}
+          user={{
+            name: 'Alex Doe',
+            email: 'alex@example.com',
+            avatar: (
+              <Avatar
+                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80"
+                alt="Alex Doe"
+                size="sm"
+              />
+            ),
+          }}
+          userActions={[
+            {
+              key: 'team',
+              label: 'Team switch',
+              icon: Users,
+              onSelect: () => undefined,
+            },
+            { key: 'signout', label: 'Sign out', onSelect: () => undefined },
+          ]}
+          collapsible="icon"
+          showRail={false}
+          className="h-full border-r border-sidebar-border"
+        />
+      </div>
+    </div>
+  );
+}
+
+function TextPreview(): JSX.Element {
+  return (
+    <div style={{ maxWidth: 420 }}>
+      <Text as="p" tone="muted" weight="medium">
+        Portable component copy that keeps typography consistent across hosts.
+      </Text>
+    </div>
+  );
+}
+
+function StatCardPreview(): JSX.Element {
+  const [clicked, setClicked] = useState(0);
+
+  return (
+    <div className="grid w-full max-w-xl gap-3 sm:grid-cols-2">
+      <StatCard
+        label="Active users"
+        value="24,318"
+        icon={Users}
+        delta="+12.4%"
+        trend="up"
+        description="vs prior week"
+        onClick={() => setClicked((count) => count + 1)}
+      />
+      <StatCard
+        label="Conversion rate"
+        value="3.42%"
+        icon={BarChart3}
+        delta="-0.6%"
+        trend="down"
+        description={
+          clicked > 0 ? `Drilled in ${clicked}x` : 'Click the other tile'
+        }
+      />
+    </div>
+  );
+}
+
+const EXAMPLES: Record<ComponentExampleId, ExampleConfig> = {
+  autocomplete: {
+    render: AutocompletePreview,
+    code: `import { useState } from 'react';
+import { Autocomplete } from '@rapidset/rapidkit';
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+const searchUsers = async () => ({
+  items: [],
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
+});
+const getUserById = async (): Promise<User | null> => null;
+
+function AssigneeField() {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  return (
+    <Autocomplete<User>
+      name="assignee"
+      label="Assignee"
+      value={selectedId}
+      searchOptions={searchUsers}
+      getOptionById={getUserById}
+      onSelectOption={(item) => setSelectedId(item?.id ?? null)}
+      placeholder="Search teammates"
+    />
+  );
+}`,
+  },
+  avatar: {
+    render: AvatarPreview,
+    code: `import { Avatar } from '@rapidset/rapidkit';
+
+<div className="flex items-end gap-4">
+  <Avatar
+    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80"
+    alt="Alex Rivera"
+    size="sm"
+  />
+  <Avatar alt="Jordan Kim" size="md" />
+  <Avatar fallback="RK" size="lg" />
+</div>`,
+  },
+  'base-modal': {
+    render: BaseModalPreview,
+    code: `import { BaseModal, ButtonVariant } from '@rapidset/rapidkit';
+
+<BaseModal
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Edit Profile"
+  description="Update profile settings"
+  onSave={() => console.log('save')}
+  customButtons={[
+    {
+      label: 'Preview',
+      onClick: () => console.log('preview'),
+      variant: ButtonVariant.Outlined,
+    },
+  ]}
+>
+  <div className="text-sm text-foreground">Profile form fields go here.</div>
+</BaseModal>;`,
+  },
+  'base-table': {
+    render: BaseTablePreview,
+    code: `import { useMemo } from 'react';
+import { BaseTable } from '@rapidset/rapidkit';
+import { CellType } from '@rapidset/rapidkit/base-table';
+
+type ServiceRow = {
+  id: number;
+  name: string;
+  owner: string;
+  status: 'active' | 'inactive' | 'degraded';
+  alerts: number;
+};
+
+export function ServicesTable() {
+  const rows: ServiceRow[] = [
+    { id: 1, name: 'Payments API', owner: 'Alex Rivera', status: 'active', alerts: 1 },
+    { id: 2, name: 'Notification Hub', owner: 'Jordan Kim', status: 'degraded', alerts: 4 },
+  ];
+
+  const columns = useMemo(
+    () => [
+      {
+        id: 'name',
+        header: 'Service',
+        accessorKey: 'name',
+        type: CellType.TEXT,
+        sortable: true,
+      },
+      { id: 'owner', header: 'Owner', accessorKey: 'owner', type: CellType.AVATAR, showFrom: 'md' },
+      {
+        id: 'status',
+        header: 'Status',
+        accessorKey: 'status',
+        type: CellType.STATUS,
+        sortable: true,
+      },
+      {
+        id: 'alerts',
+        header: 'Alerts',
+        accessorKey: 'alerts',
+        type: CellType.TEXT,
+      },
+    ],
+    [],
+  );
+
+  return (
+    <BaseTable<ServiceRow> data={rows} columns={columns} enableSelection />
+  );
+}`,
+  },
+  button: {
+    render: ButtonPreview,
+    code: `import { Download } from 'lucide-react';
+import { Button, ButtonVariant } from '@rapidset/rapidkit';
+
+<div className="flex flex-wrap items-center gap-2">
+  <Button label="Primary" variant={ButtonVariant.Primary} onClick={() => console.log('primary')} />
+  <Button label="Default" variant={ButtonVariant.Default} onClick={() => console.log('default')} />
+  <Button label="Outlined" variant={ButtonVariant.Outlined} onClick={() => console.log('outlined')} />
+  <Button label="Dashed" variant={ButtonVariant.Dashed} onClick={() => console.log('dashed')} />
+  <Button label="Left Icon" leftIcon={Download} variant={ButtonVariant.Text} onClick={() => console.log('left icon')} />
+  <Button label="Right Icon" rightIcon={Download} variant={ButtonVariant.Outlined} onClick={() => console.log('right icon')} />
+  <Button label="Delete" variant={ButtonVariant.Destructive} onClick={() => console.log('delete')} />
+</div>;`,
+  },
+  chart: {
+    render: ChartPreview,
+    code: `import { Chart, ChartVariant } from '@rapidset/rapidkit';
+import type { ChartConfig } from '@rapidset/rapidkit';
+
+const data = [
+  { month: 'Jan', revenue: 12400, cost: 8100 },
+  { month: 'Feb', revenue: 18900, cost: 10700 },
+  { month: 'Mar', revenue: 22300, cost: 13400 },
+  { month: 'Apr', revenue: 20100, cost: 12900 },
+  { month: 'May', revenue: 26500, cost: 15200 },
+  { month: 'Jun', revenue: 31200, cost: 17800 },
+];
+
+const config: ChartConfig = {
+  revenue: { label: 'Revenue', color: 'hsl(var(--rk-chart-1))' },
+  cost: { label: 'Cost', color: 'hsl(var(--rk-chart-2))' },
+};
+
+const series = [{ dataKey: 'revenue' }, { dataKey: 'cost' }];
+
+// Line
+<Chart
+  type={ChartVariant.Line}
+  data={data}
+  config={config}
+  series={series}
+  xAxisKey="month"
+  smooth
+  showDots
+  height={200}
+/>;
+
+// Bar
+<Chart
+  type={ChartVariant.Bar}
+  data={data}
+  config={config}
+  series={series}
+  xAxisKey="month"
+  height={200}
+/>;
+
+// Area (stacked)
+<Chart
+  type={ChartVariant.Area}
+  data={data}
+  config={config}
+  series={series}
+  xAxisKey="month"
+  smooth
+  stacked
+  height={200}
+/>;
+
+// Pie (donut: innerRadius > 0)
+const segments = [
+  { segment: 'Web', value: 540 },
+  { segment: 'Mobile', value: 320 },
+  { segment: 'API', value: 220 },
+  { segment: 'Partners', value: 120 },
+];
+
+const pieConfig: ChartConfig = {
+  Web: { label: 'Web', color: 'hsl(var(--rk-chart-1))' },
+  Mobile: { label: 'Mobile', color: 'hsl(var(--rk-chart-2))' },
+  API: { label: 'API', color: 'hsl(var(--rk-chart-3))' },
+  Partners: { label: 'Partners', color: 'hsl(var(--rk-chart-4))' },
+};
+
+<Chart
+  type={ChartVariant.Pie}
+  data={segments}
+  config={pieConfig}
+  dataKey="value"
+  nameKey="segment"
+  innerRadius={45}
+  outerRadius={80}
+  height={200}
+/>;`,
+  },
+  checkbox: {
+    render: CheckboxPreview,
+    code: `import { Checkbox } from '@rapidset/rapidkit';
+
+<Checkbox
+  name="acceptTerms"
+  label="Terms"
+  title="I agree to the terms"
+  onCheckChange={(checked) => console.log(checked)}
+/>`,
+  },
+  chip: {
+    render: ChipPreview,
+    code: `import { Circle } from 'lucide-react';
+import { Chip } from '@rapidset/rapidkit';
+
+<Chip
+  label="Synced"
+  icon={Circle}
+  variant="secondary"
+  size="md"
+  onRemove={() => console.log('remove')}
+/>;`,
+  },
+  'date-picker': {
+    render: DatePickerPreview,
+    code: `import { DatePicker } from '@rapidset/rapidkit';
+
+<DatePicker
+  name="startDate"
+  label="Start Date"
+  value="2026-04-18"
+  helperText="Choose a start date"
+  onChange={(change) => {
+    console.log(change.target.name, change.target.value);
+  }}
+/>`,
+  },
+  'details-card': {
+    render: DetailsCardPreview,
+    code: `import { FileText, Archive } from 'lucide-react';
+import { ButtonVariant, DetailsCard } from '@rapidset/rapidkit';
+
+interface UserDetails {
+  id: string;
+  email: string;
+}
+
+<DetailsCard<UserDetails>
+  title="User Details"
+  icon={FileText}
+  isLoading={false}
+  data={{ id: '42', email: 'owner@company.com' }}
+  tabs={[
+    { key: 'profile', label: 'Profile', component: <div>Profile content</div> },
+    {
+      key: 'security',
+      label: 'Security',
+      component: <div>Security content</div>,
+    },
+  ]}
+  onSave={(data) => console.log('save', data)}
+  onDelete={(data) => console.log('delete', data)}
+  onClose={() => console.log('close')}
+  customButtons={[
+    {
+      label: 'Archive',
+      icon: Archive,
+      variant: ButtonVariant.Outlined,
+      onClick: (data) => console.log('archive', data),
+    },
+  ]}
+/>;`,
+  },
+  'drop-down': {
+    render: DropDownPreview,
+    code: `import { DropDown } from '@rapidset/rapidkit';
+
+<DropDown
+  label="Country"
+  value=""
+  placeholder="Select country"
+  options={[
+    { label: 'United States', value: 'US' },
+    { label: 'Canada', value: 'CA' },
+  ]}
+  onChange={(next) => console.log(next)}
+/>;`,
+  },
+  form: {
+    render: FormPreview,
+    code: `import { useState } from 'react';
+import {
+  Form,
+  FormField,
+  FormSubmit,
+  Input,
+  Checkbox,
+  useFormHandlers,
+} from '@rapidset/rapidkit';
+
+type LoginValues = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
+
+function LoginForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>();
+
+  const form = useFormHandlers<LoginValues>({
+    initialValues: { email: '', password: '', remember: false },
+    onSubmit: async (values) => {
+      setIsSubmitting(true);
+      await api.login(values);
+      setIsSubmitting(false);
+      setSuccessMessage(\`Signed in as \${values.email}\`);
+    },
+  });
+
+  return (
+    <Form
+      form={form}
+      isSubmitting={isSubmitting}
+      successMessage={successMessage}
+    >
+      <div className="space-y-4">
+        <FormField name="email" label="Email" required>
+          <Input type="email" placeholder="name@company.com" />
+        </FormField>
+        <FormField name="password" label="Password" required>
+          <Input type="password" />
+        </FormField>
+        <FormField name="remember">
+          <Checkbox title="Remember me" />
+        </FormField>
+      </div>
+      <div className="mt-6">
+        <FormSubmit label="Sign in" className="w-full justify-center" />
+      </div>
+    </Form>
+  );
+}`,
+  },
+  'form-field': {
+    render: FormFieldPreview,
+    code: `import {
+  Form,
+  FormField,
+  Input,
+  useFormHandlers,
+} from '@rapidset/rapidkit';
+
+type ProfileValues = { email: string; bio: string };
+
+function ProfileForm() {
+  const form = useFormHandlers<ProfileValues>({
+    initialValues: { email: '', bio: '' },
+  });
+
+  return (
+    <Form form={form}>
+      <div className="space-y-5">
+        {/* Element child: cloneElement injects bindings */}
+        <FormField name="email" label="Email" required>
+          <Input type="email" placeholder="name@company.com" />
+        </FormField>
+
+        {/* Render-prop child: full field args for custom editors */}
+        <FormField name="bio" label="Bio" helperText="Markdown supported">
+          {(field) => (
+            <textarea
+              id={field.id}
+              name={field.name}
+              value={String(field.value ?? '')}
+              onChange={(event) =>
+                form.setFieldValue('bio', event.target.value)
+              }
+              onBlur={field.onBlur}
+            />
+          )}
+        </FormField>
+      </div>
+    </Form>
+  );
+}`,
+  },
+  'form-submit': {
+    render: FormSubmitPreview,
+    code: `import { useState } from 'react';
+import {
+  Form,
+  FormField,
+  FormSubmit,
+  Input,
+  useFormHandlers,
+} from '@rapidset/rapidkit';
+
+function SubmitDemo() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useFormHandlers({ initialValues: { email: '' } });
+
+  return (
+    <Form form={form} isSubmitting={isSubmitting}>
+      <div className="space-y-4">
+        <FormField name="email" label="Email" required>
+          <Input type="email" />
+        </FormField>
+      </div>
+      <div className="mt-6">
+        <FormSubmit label="Sign in" className="w-full justify-center" />
+      </div>
+    </Form>
+  );
+}`,
+  },
+  icon: {
+    render: IconPreview,
+    code: `import { Bell } from 'lucide-react';
+import { Icon } from '@rapidset/rapidkit';
+
+<Icon
+  icon={Bell}
+  className="h-4 w-4 text-muted-foreground"
+  aria-label="Alerts"
+/>;`,
+  },
+  image: {
+    render: ImagePreview,
+    code: `import { Image } from '@rapidset/rapidkit';
+
+<div className="flex items-end gap-4">
+  <Image
+    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=512&q=80"
+    alt="Nature preview small"
+    size="sm"
+    loading="lazy"
+  />
+  <Image
+    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=512&q=80"
+    alt="Nature preview medium"
+    size="md"
+    loading="lazy"
+  />
+  <Image
+    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=512&q=80"
+    alt="Nature preview large"
+    size="lg"
+    loading="lazy"
+  />
+</div>`,
+  },
+  logo: {
+    render: LogoPreview,
+    code: `import { Logo } from '@rapidset/rapidkit';
+
+<div className="flex flex-wrap items-center gap-3">
+  <Logo
+    size="small"
+    open
+    showIcon
+    showText
+    logoSrc="${rapidKitLogoSrc}"
+    iconSrc="${rapidKitLogoSrc}"
+    alt="RapidKit logo"
+  />
+  <div className="hidden h-10 w-px bg-border sm:block" aria-hidden="true" />
+  <Logo
+    size="medium"
+    open={false}
+    showIcon
+    showText
+    logoSrc="${rapidKitLogoSrc}"
+    iconSrc="${rapidKitLogoSrc}"
+    alt="RapidKit collapsed logo"
+  />
+  <div className="hidden h-10 w-px bg-border sm:block" aria-hidden="true" />
+  <Logo
+    size="large"
+    open
+    showIcon
+    showText
+    logoSrc="${rapidKitLogoSrc}"
+    iconSrc="${rapidKitLogoSrc}"
+    alt="RapidKit large logo"
+  />
+</div>;`,
+  },
+  'nav-menu': {
+    render: NavMenuPreview,
+    code: `import { BarChart3, Bell, Home } from 'lucide-react';
+import { NavMenu } from '@rapidset/rapidkit';
+
+<NavMenu
+  ariaLabel="Primary dashboard navigation"
+  sections={[
+    {
+      label: 'Dashboard',
+      items: [
+        {
+          label: 'Overview',
+          href: '/overview',
+          icon: Home,
+          description: 'Live system health, SLAs, and key KPIs.',
+        },
+        {
+          label: 'Incidents',
+          href: '/incidents',
+          icon: Bell,
+          description: 'Active incidents and escalation history.',
+        },
+        {
+          label: 'Usage Reports',
+          href: '/usage-reports',
+          icon: BarChart3,
+          description: 'Traffic and cost analytics by environment.',
+        },
+      ],
+    },
+    {
+      label: 'Workloads',
+      items: [
+        {
+          label: 'Services',
+          href: '/services',
+          description: 'Runtime status and deployment health.',
+        },
+        {
+          label: 'Environments',
+          href: '/environments',
+          disabled: true,
+          description: 'Cross-environment controls (coming soon).',
+        },
+      ],
+    },
+    {
+      label: 'Account',
+      items: [
+        {
+          label: 'Profile',
+          href: '/profile',
+        },
+        {
+          label: 'API Keys',
+          href: '/api-keys',
+        },
+        {
+          label: 'Billing',
+          href: '/billing',
+          disabled: true,
+        },
+      ],
+    },
+    {
+      label: 'Resources',
+      items: [
+        {
+          label: 'Documentation',
+          href: 'https://rapidset.github.io/RapidKit/components/',
+          external: true,
+          description: 'Component reference and implementation guides.',
+        },
+      ],
+    },
+  ]}
+/>;`,
+  },
+  input: {
+    render: InputPreview,
+    code: `import { Input } from '@rapidset/rapidkit';
+
+<Input
+  name="email"
+  label="Email"
+  value=""
+  onChange={() => {}}
+  placeholder="name@company.com"
+/>`,
+  },
+  page: {
+    render: PagePreview,
+    code: `import { Plus } from 'lucide-react';
+import { ButtonVariant, Page } from '@rapidset/rapidkit';
+
+<Page
+  searchPlaceholder="Search users"
+  onSearch={(value) => console.log(value)}
+  actions={[
+    {
+      name: 'Create User',
+      onClick: () => console.log('create'),
+      icon: Plus,
+      variant: ButtonVariant.Default,
+    },
+  ]}
+  filterSlot={<div className="text-xs text-muted-foreground">Active only</div>}
+>
+  <div className="rounded-md border p-4">Page content</div>
+</Page>;`,
+  },
+  search: {
+    render: SearchPreview,
+    code: `import { Search } from '@rapidset/rapidkit';
+
+<Search placeholder="Search users" onChange={(value) => console.log(value)} />;`,
+  },
+  'side-bar': {
+    render: SideBarPreview,
+    code: `import {
+  BarChart3,
+  FolderKanban,
+  Home,
+  LifeBuoy,
+  Settings,
+  Users,
+} from 'lucide-react';
+import { Avatar, SideBar } from '@rapidset/rapidkit';
+
+<SideBar
+  menuItems={[
+    {
+      key: 'dashboard',
+      label: 'Dashboard',
+      group: 'Core',
+      icon: Home,
+      isActive: true,
+      badge: '12',
+      onSelect: () => {},
+    },
+    {
+      key: 'analytics',
+      label: 'Analytics',
+      group: 'Core',
+      icon: BarChart3,
+      onSelect: () => {},
+    },
+    {
+      key: 'billing',
+      label: 'Billing',
+      group: 'Operations',
+      icon: FolderKanban,
+      onSelect: () => {},
+    },
+    {
+      key: 'support',
+      label: 'Support',
+      group: 'Operations',
+      icon: LifeBuoy,
+      onSelect: () => {},
+    },
+    {
+      key: 'settings',
+      label: 'Settings',
+      group: 'Administration',
+      icon: Settings,
+      onSelect: () => {},
+      items: [
+        { key: 'users', label: 'Users', isActive: true, onSelect: () => {} },
+        { key: 'roles', label: 'Roles', onSelect: () => {} },
+      ],
+    },
+  ]}
+  user={{
+    name: 'Alex Doe',
+    email: 'alex@example.com',
+    avatar: (
+      <Avatar
+        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=128&q=80"
+        alt="Alex Doe"
+        size="sm"
+      />
+    ),
+  }}
+  userActions={[
+    { key: 'team', label: 'Team switch', icon: Users, onSelect: () => {} },
+    { key: 'signout', label: 'Sign out', onSelect: () => {} },
+  ]}
+  collapsible="icon"
+  showRail={false}
+/>;`,
+  },
+  'stat-card': {
+    render: StatCardPreview,
+    code: `import { useState } from 'react';
+import { BarChart3, Users } from 'lucide-react';
+import { StatCard } from '@rapidset/rapidkit';
+
+export function KpiRow() {
+  const [clicked, setClicked] = useState(0);
+
+  return (
+    <div className="grid w-full max-w-xl gap-3 sm:grid-cols-2">
+      <StatCard
+        label="Active users"
+        value="24,318"
+        icon={Users}
+        delta="+12.4%"
+        trend="up"
+        description="vs prior week"
+        onClick={() => setClicked((count) => count + 1)}
+      />
+      <StatCard
+        label="Conversion rate"
+        value="3.42%"
+        icon={BarChart3}
+        delta="-0.6%"
+        trend="down"
+        description={clicked > 0 ? \`Drilled in \${clicked}x\` : 'Click the other tile'}
+      />
+    </div>
+  );
+}`,
+  },
+  text: {
+    render: TextPreview,
+    code: `import { Text } from '@rapidset/rapidkit';
+
+<Text as="p" tone="muted" weight="medium">
+  Portable component copy that keeps typography consistent across hosts.
+</Text>`,
+  },
+  'text-area': {
+    render: TextAreaPreview,
+    code: `import { TextArea } from '@rapidset/rapidkit';
+
+<TextArea
+  name="notes"
+  label="Notes"
+  value=""
+  onChange={() => {}}
+  placeholder="Write implementation notes"
+  helperText="Keep this concise and actionable."
+/>`,
+  },
+  toast: {
+    render: ToastPreview,
+    code: `import { Toaster, toast } from '@rapidset/rapidkit';
+
+export function App() {
+  return (
+    <>
+      <button onClick={() => toast.success('Saved')}>Save</button>
+      <button onClick={() => toast.error('Could not save')}>Retry</button>
+      <button
+        onClick={() =>
+          toast.promise(deploy(), {
+            loading: 'Deploying...',
+            success: (data) => \`Deployed \${data.id}\`,
+            error: 'Deployment failed',
+          })
+        }
+      >
+        Deploy
+      </button>
+      <Toaster />
+    </>
+  );
+}`,
+  },
+  toggle: {
+    render: TogglePreview,
+    code: `import { Toggle } from '@rapidset/rapidkit';
+
+<Toggle
+  name="emailAlerts"
+  label="Notifications"
+  title="Email alerts"
+  checked={true}
+  onToggleChange={(checked, name) => console.log(name, checked)}
+/>`,
+  },
+};
 
 type PreviewViewport = 'desktop' | 'laptop' | 'tablet' | 'mobile';
-type CopyState = 'idle' | 'done' | 'error';
 
 const VIEWPORT_OPTIONS: Array<{
   id: Exclude<PreviewViewport, 'desktop'>;
@@ -14,106 +2713,219 @@ const VIEWPORT_OPTIONS: Array<{
   shortLabel: string;
   Icon: typeof Smartphone;
 }> = [
-  { id: 'mobile', label: 'Mobile preview (390px)', shortLabel: 'SM', Icon: Smartphone },
-  { id: 'tablet', label: 'Tablet preview (768px)', shortLabel: 'MD', Icon: Tablet },
-  { id: 'laptop', label: 'Laptop preview (1024px)', shortLabel: 'LG', Icon: Laptop },
+  {
+    id: 'mobile',
+    label: 'Mobile preview (390px)',
+    shortLabel: 'SM',
+    Icon: Smartphone,
+  },
+  {
+    id: 'tablet',
+    label: 'Tablet preview (768px)',
+    shortLabel: 'MD',
+    Icon: Tablet,
+  },
+  {
+    id: 'laptop',
+    label: 'Laptop preview (1024px)',
+    shortLabel: 'LG',
+    Icon: Laptop,
+  },
 ];
 
-function getCopyLabel(state: CopyState): string {
-  if (state === 'done') return 'Copied';
-  if (state === 'error') return 'Failed';
-  return 'Copy';
-}
-
-export type { ComponentExampleId };
-
-export function ComponentExampleTabs({ component }: Readonly<{ component: ComponentExampleId }>): JSX.Element {
+function ExampleTabsContent({ component }: ExampleTabsProps): JSX.Element {
+  const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
   const [viewport, setViewport] = useState<PreviewViewport>('desktop');
-  const [copyState, setCopyState] = useState<CopyState>('idle');
+  const [copyState, setCopyState] = useState<'idle' | 'done' | 'error'>('idle');
+  const [highlightedCodeHtml, setHighlightedCodeHtml] = useState('');
 
-  const Preview = COMPONENT_EXAMPLE_RENDERERS[component];
-  const generated = EXAMPLE_CODE[component] ?? { code: '', html: '' };
+  const example = useMemo(() => EXAMPLES[component], [component]);
+  const Preview = example.render;
+  const previewPanelId = `${component}-preview-panel`;
+  const codePanelId = `${component}-code-panel`;
+  const previewTabId = `${component}-preview-tab`;
+  const codeTabId = `${component}-code-tab`;
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function highlightCode(): Promise<void> {
+      try {
+        const { codeToHtml } = await import('shiki');
+        const html = await codeToHtml(example.code, {
+          lang: 'tsx',
+          themes: {
+            light: 'github-light',
+            dark: 'github-dark',
+          },
+        });
+
+        if (!isCancelled) {
+          setHighlightedCodeHtml(html);
+        }
+      } catch {
+        if (!isCancelled) {
+          setHighlightedCodeHtml('');
+        }
+      }
+    }
+
+    if (activeTab === 'code') {
+      void highlightCode();
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activeTab, example.code]);
 
   async function copyCode(): Promise<void> {
     try {
-      await navigator.clipboard.writeText(generated.code);
+      await navigator.clipboard.writeText(example.code);
       setCopyState('done');
     } catch {
       setCopyState('error');
     }
-    setTimeout(() => setCopyState('idle'), 1500);
+
+    setTimeout(() => {
+      setCopyState('idle');
+    }, 1500);
   }
 
-  const viewportControls = (
-    <div className="component-example-tabs__viewport-group" role="group" aria-label="Preview viewport">
-      {VIEWPORT_OPTIONS.map(({ id, label, shortLabel, Icon }) => {
-        const isActive = viewport === id;
-        const nextLabel = isActive ? 'Switch to desktop preview' : label;
-        return (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={isActive}
-            aria-label={nextLabel}
-            title={nextLabel}
-            className={`component-example-tabs__viewport-toggle ${isActive ? 'is-active' : ''}`}
-            onClick={() => setViewport((current) => (current === id ? 'desktop' : id))}
-          >
-            <Icon size={13} aria-hidden="true" />
-            <span className="component-example-tabs__viewport-toggle-label">{shortLabel}</span>
-          </button>
-        );
-      })}
-      <Link
-        href={`/preview/components/${component}/`}
-        target="_blank"
-        rel="noreferrer"
-        className="component-example-tabs__viewport-toggle"
-        title="Open isolated preview"
-        aria-label="Open isolated preview in new tab"
+  return (
+    <div className="component-example-tabs">
+      <div
+        className="component-example-tabs__controls"
+        role="tablist"
+        aria-label="Example tabs"
       >
-        <ExternalLink size={12} aria-hidden="true" />
-      </Link>
-    </div>
-  );
+        <button
+          id={previewTabId}
+          type="button"
+          role="tab"
+          aria-controls={previewPanelId}
+          aria-selected={activeTab === 'preview'}
+          className={`component-example-tabs__button ${
+            activeTab === 'preview' ? 'is-active' : ''
+          }`}
+          onClick={() => setActiveTab('preview')}
+        >
+          Preview
+        </button>
+        <button
+          id={codeTabId}
+          type="button"
+          role="tab"
+          aria-controls={codePanelId}
+          aria-selected={activeTab === 'code'}
+          className={`component-example-tabs__button ${
+            activeTab === 'code' ? 'is-active' : ''
+          }`}
+          onClick={() => setActiveTab('code')}
+        >
+          Code
+        </button>
+        {activeTab === 'preview' ? (
+          <div
+            className="component-example-tabs__viewport-group"
+            role="group"
+            aria-label="Preview viewport"
+          >
+            {VIEWPORT_OPTIONS.map(({ id, label, shortLabel, Icon }) => {
+              const isActive = viewport === id;
+              const nextLabel = isActive ? 'Switch to desktop preview' : label;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={isActive}
+                  aria-label={nextLabel}
+                  title={nextLabel}
+                  className={`component-example-tabs__viewport-toggle ${
+                    isActive ? 'is-active' : ''
+                  }`}
+                  onClick={() =>
+                    setViewport((current) => (current === id ? 'desktop' : id))
+                  }
+                >
+                  <Icon size={13} aria-hidden="true" />
+                  <span className="component-example-tabs__viewport-toggle-label">
+                    {shortLabel}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
 
-  const previewSlot = (
-    <div
-      className={`component-example-tabs__preview component-example-tabs__preview--${component} ${
-        viewport !== 'desktop' ? `component-example-tabs__preview--sim component-example-tabs__preview--sim-${viewport}` : ''
-      }`}
-    >
-      {viewport !== 'desktop' ? (
-        <div className={`component-example-tabs__sim-frame component-example-tabs__sim-frame--${viewport}`}>
-          <Preview />
-        </div>
-      ) : (
-        <Preview />
-      )}
-    </div>
-  );
+      <div
+        id={previewPanelId}
+        role="tabpanel"
+        aria-labelledby={previewTabId}
+        hidden={activeTab !== 'preview'}
+        className="component-example-tabs__panel"
+      >
+        {activeTab === 'preview' ? (
+          <div
+            className={`component-example-tabs__preview component-example-tabs__preview--${component} ${
+              viewport !== 'desktop'
+                ? `component-example-tabs__preview--sim component-example-tabs__preview--sim-${viewport}`
+                : ''
+            }`}
+          >
+            {viewport !== 'desktop' ? (
+              <div
+                className={`component-example-tabs__sim-frame component-example-tabs__sim-frame--${viewport}`}
+              >
+                <Preview />
+              </div>
+            ) : (
+              <Preview />
+            )}
+          </div>
+        ) : null}
+      </div>
 
-  const codeSlot = (
-    <div className="component-example-tabs__code-viewer">
-      <button type="button" className="component-example-tabs__copy-btn" onClick={() => void copyCode()} aria-label="Copy code snippet">
-        {getCopyLabel(copyState)}
-      </button>
+      <div
+        id={codePanelId}
+        role="tabpanel"
+        aria-labelledby={codeTabId}
+        hidden={activeTab !== 'code'}
+        className="component-example-tabs__panel"
+      >
+        {activeTab === 'code' ? (
+          <div className="component-example-tabs__code-viewer">
+            <button
+              type="button"
+              className="component-example-tabs__copy-btn"
+              onClick={copyCode}
+              aria-label="Copy code snippet"
+            >
+              {getCopyLabel(copyState)}
+            </button>
 
-      <div className="component-example-tabs__code-scroll component-example-tabs__code-block">
-        {generated.html ? (
-          <div className="component-example-tabs__shiki" dangerouslySetInnerHTML={{ __html: generated.html }} />
-        ) : (
-          <pre>
-            <code>{generated.code}</code>
-          </pre>
-        )}
+            <div className="component-example-tabs__code-scroll component-example-tabs__code-block">
+              {highlightedCodeHtml ? (
+                <div
+                  className="component-example-tabs__shiki"
+                  dangerouslySetInnerHTML={{ __html: highlightedCodeHtml }}
+                />
+              ) : (
+                <pre>
+                  <code>{example.code}</code>
+                </pre>
+              )}
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
+}
 
-  return (
-    <div className="component-example-tabs-host">
-      <ExampleTabs previewSlot={previewSlot} codeSlot={codeSlot} rightControls={viewportControls} />
-    </div>
-  );
+export function ComponentExampleTabs({
+  component,
+}: ExampleTabsProps): JSX.Element {
+  return <ExampleTabsContent component={component} />;
 }

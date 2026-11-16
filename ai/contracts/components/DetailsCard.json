@@ -1,0 +1,17 @@
+{
+  "name": "DetailsCard",
+  "import": "import { DetailsCard } from '@moa-eth/moa-design-library';",
+  "purpose": "Card displaying a list of labeled key-value metadata fields.",
+  "props": {
+    "title": "string: card header",
+    "items": "{ label: string; value: ReactNode }[]",
+    "actions": "ReactNode: header buttons",
+    "className": "string"
+  },
+  "usage": [
+    "<DetailsCard title=\"Farm Summary\" items={[{ label: \"Woreda\", value: \"Ada'a\" }]} />"
+  ],
+  "rules": [
+    "Order metadata fields logically from primary identification to status."
+  ]
+}

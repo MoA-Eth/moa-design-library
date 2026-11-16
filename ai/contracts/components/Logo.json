@@ -1,0 +1,16 @@
+{
+  "name": "Logo",
+  "import": "import { Logo } from '@moa-eth/moa-design-library';",
+  "purpose": "Ministry of Agriculture official branding logo with responsive variations.",
+  "props": {
+    "variant": "'default' | 'mark' | 'white'",
+    "size": "'sm' | 'md' | 'lg'",
+    "className": "string"
+  },
+  "usage": [
+    "<Logo size=\"md\" variant=\"default\" />"
+  ],
+  "rules": [
+    "Use white variant on dark backgrounds and headers."
+  ]
+}

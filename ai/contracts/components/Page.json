@@ -1,0 +1,19 @@
+{
+  "name": "Page",
+  "import": "import { Page } from '@moa-eth/moa-design-library';",
+  "purpose": "Standard page container layout with header, title, breadcrumbs, actions, and content slot.",
+  "props": {
+    "title": "string: page title",
+    "description": "string: optional subtitle",
+    "breadcrumbs": "{ label: string; href?: string }[]",
+    "actions": "ReactNode: page action buttons",
+    "children": "ReactNode: main page content",
+    "className": "string"
+  },
+  "usage": [
+    "<Page title=\"Grain Warehouses\" actions={<Button>Add Warehouse</Button>}>Page content</Page>"
+  ],
+  "rules": [
+    "Every application route should have a single Page root element."
+  ]
+}

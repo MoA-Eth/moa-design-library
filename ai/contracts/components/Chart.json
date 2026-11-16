@@ -1,0 +1,18 @@
+{
+  "name": "Chart",
+  "import": "import { Chart } from '@moa-eth/moa-design-library';",
+  "purpose": "Data visualization wrapper around Recharts supporting line, bar, area, and pie charts.",
+  "props": {
+    "variant": "ChartVariant: \"line\" | \"bar\" | \"area\" | \"pie\"",
+    "data": "any[]: chart series data",
+    "config": "ChartConfig: series configuration and labels",
+    "height": "number | string: chart height",
+    "className": "string"
+  },
+  "usage": [
+    "<Chart variant={ChartVariant.BAR} data={cropYields} config={yieldConfig} />"
+  ],
+  "rules": [
+    "Always specify semantic color tokens from the MoA theme for chart series."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "FormField",
+  "import": "import { FormField } from '@moa-eth/moa-design-library';",
+  "purpose": "Form field container providing label, helper text, and validation error binding.",
+  "props": {
+    "name": "string: form control name",
+    "label": "string: field label",
+    "helperText": "string",
+    "error": "string",
+    "children": "ReactNode: input element",
+    "className": "string"
+  },
+  "usage": [
+    "<FormField name=\"licenseNo\" label=\"License No\"><Input /></FormField>"
+  ],
+  "rules": [
+    "Display clear, actionable error messages upon submission failure."
+  ]
+}

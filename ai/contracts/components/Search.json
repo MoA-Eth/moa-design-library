@@ -1,0 +1,18 @@
+{
+  "name": "Search",
+  "import": "import { Search } from '@moa-eth/moa-design-library';",
+  "purpose": "Search bar input with instant or debounced submission and clear button.",
+  "props": {
+    "value": "string: query string",
+    "onChange": "(value: string) => void",
+    "onSubmit": "(value: string) => void",
+    "placeholder": "string (default: \"Search...\")",
+    "className": "string"
+  },
+  "usage": [
+    "<Search value={query} onChange={setQuery} onSubmit={handleSearch} />"
+  ],
+  "rules": [
+    "Include a clear button when the query is non-empty."
+  ]
+}

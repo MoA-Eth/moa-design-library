@@ -1,0 +1,47 @@
+import type { KeyboardEvent } from 'react';
+import { Search as SearchIcon } from 'lucide-react';
+import { cn } from '@lib/utils';
+import { Input } from '@ui/input';
+import type { SearchProps } from './types';
+
+export function Search(props: Readonly<SearchProps>) {
+  const {
+    placeholder = 'Search...',
+    value,
+    onChange,
+    className,
+    disabled,
+    inputClassName,
+    onKeyDown,
+    ariaLabel = 'search-input',
+  } = props;
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    onKeyDown?.(event);
+  };
+
+  return (
+    <div className={cn('relative w-72', className)}>
+      <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+        <SearchIcon aria-hidden="true" className="h-4 w-4" />
+      </span>
+      <Input
+        type="search"
+        aria-label={ariaLabel}
+        placeholder={placeholder}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value)}
+        onKeyDown={handleKeyDown}
+        {...(value === undefined ? {} : { value })}
+        className={cn(
+          'rounded-sm border ring-0 appearance-none',
+          '[&::-webkit-search-decoration]:appearance-none [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none',
+          'text-[length:var(--rk-control-font-size)] placeholder:text-[length:var(--rk-control-font-size)] placeholder:text-muted-foreground/60',
+          'pl-9',
+          inputClassName,
+        )}
+        disabled={disabled}
+      />
+    </div>
+  );
+}

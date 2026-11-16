@@ -1,0 +1,19 @@
+{
+  "name": "Toggle",
+  "import": "import { Toggle } from '@moa-eth/moa-design-library';",
+  "purpose": "Accessible switch toggle for binary on/off settings.",
+  "props": {
+    "checked": "boolean",
+    "onCheckedChange": "(checked: boolean) => void",
+    "label": "string: toggle label",
+    "helperText": "string",
+    "disabled": "boolean",
+    "className": "string"
+  },
+  "usage": [
+    "<Toggle checked={notifications} onCheckedChange={setNotifications} label=\"SMS Alerts\" />"
+  ],
+  "rules": [
+    "Ensure the action takes immediate effect without requiring a separate save button."
+  ]
+}

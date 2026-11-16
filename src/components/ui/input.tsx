@@ -1,19 +1,34 @@
 import * as React from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '@lib/utils';
 
-export const UiInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, type = 'text', ...props }, ref) => (
+export const Input = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<'input'>
+>(({ className, type = 'text', ...props }, ref) => {
+  return (
     <input
       ref={ref}
       type={type}
       className={cn(
-        'flex h-9 w-full rounded-control border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground transition-colors',
-        'hover:border-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary',
-        'disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive',
+        'flex h-[var(--rk-control-height)] w-full rounded-md border border-[hsl(var(--rk-control-border))] bg-background',
+        'ring-1 ring-inset ring-[hsl(var(--rk-control-border))]',
+        'px-[var(--rk-control-padding-x)] py-[var(--rk-control-padding-y)]',
+        'text-[length:var(--rk-control-font-size)]',
+        'shadow-[var(--rk-control-shadow)] transition-[background-color,color,border-color,box-shadow] duration-200',
+        'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+        'placeholder:text-muted-foreground',
+        'focus-visible:outline-none',
+        'focus-visible:border-[hsl(var(--rk-ring))]',
+        'focus-visible:shadow-[var(--rk-control-shadow-focus)]',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
     />
-  ),
-);
-UiInput.displayName = 'UiInput';
+  );
+});
+
+Input.displayName = 'Input';
+
+export const UiInput = Input;
+

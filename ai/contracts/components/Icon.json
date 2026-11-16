@@ -1,0 +1,16 @@
+{
+  "name": "Icon",
+  "import": "import { Icon } from '@moa-eth/moa-design-library';",
+  "purpose": "Unified SVG icon wrapper based on Lucide with consistent sizing and colors.",
+  "props": {
+    "name": "string: icon identifier",
+    "size": "number | string (default: 20)",
+    "className": "string"
+  },
+  "usage": [
+    "<Icon name=\"check\" size={16} className=\"text-primary\" />"
+  ],
+  "rules": [
+    "Always provide an aria-label or title if the icon conveys standalone information."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Autocomplete",
+  "import": "import { Autocomplete } from '@moa-eth/moa-design-library';",
+  "purpose": "Searchable combobox with debounced async queries, pagination, and keyboard navigation.",
+  "props": {
+    "name": "string: form field name",
+    "value": "T['id'] | null: selected value ID",
+    "onSelectOption": "(item: T | null) => void: selection handler",
+    "searchOptions": "(params: { query: string; page: number; size: number }) => Promise<{ items: T[]; ... }>",
+    "getOptionById": "(id: T['id']) => Promise<T | null>",
+    "label": "string: field label",
+    "placeholder": "string (default: \"Search...\")",
+    "disabled": "boolean",
+    "error": "string | boolean",
+    "helperText": "string"
+  },
+  "usage": [
+    "<Autocomplete name=\"assignee\" value={userId} onSelectOption={setUser} searchOptions={fetchUsers} />"
+  ],
+  "rules": [
+    "Always supply a unique name for form accessibility.",
+    "Provide clear empty message when query yields no results."
+  ]
+}

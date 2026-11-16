@@ -1,0 +1,16 @@
+{
+  "name": "Toaster",
+  "import": "import { Toaster } from '@moa-eth/moa-design-library';",
+  "purpose": "Notification toast provider and viewport built on Sonner.",
+  "props": {
+    "position": "'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' (default: 'top-right')",
+    "theme": "'light' | 'dark' | 'system'",
+    "className": "string"
+  },
+  "usage": [
+    "<Toaster position=\"top-right\" />"
+  ],
+  "rules": [
+    "Mount once in the application layout or _app.jsx."
+  ]
+}

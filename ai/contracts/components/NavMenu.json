@@ -1,0 +1,15 @@
+{
+  "name": "NavMenu",
+  "import": "import { NavMenu } from '@moa-eth/moa-design-library';",
+  "purpose": "Horizontal navigation menu with submenus and keyboard accessibility.",
+  "props": {
+    "items": "{ label: string; href?: string; children?: any[] }[]",
+    "className": "string"
+  },
+  "usage": [
+    "<NavMenu items={[{ label: \"Crops\", href: \"/crops\" }]} />"
+  ],
+  "rules": [
+    "Highlight active navigation item matching the current route."
+  ]
+}

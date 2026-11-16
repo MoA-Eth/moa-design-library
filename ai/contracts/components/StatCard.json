@@ -1,0 +1,18 @@
+{
+  "name": "StatCard",
+  "import": "import { StatCard } from '@moa-eth/moa-design-library';",
+  "purpose": "KPI stat metric card displaying a number, trend percentage, icon, and description.",
+  "props": {
+    "label": "string: metric name",
+    "value": "string | number: primary stat",
+    "trend": "{ value: number; isPositive?: boolean }",
+    "icon": "ReactNode: supporting icon",
+    "className": "string"
+  },
+  "usage": [
+    "<StatCard label=\"Total Cooperatives\" value=\"1,240\" trend={{ value: 12, isPositive: true }} />"
+  ],
+  "rules": [
+    "Format large numbers with readable thousand separators."
+  ]
+}

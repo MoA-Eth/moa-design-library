@@ -1,0 +1,231 @@
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Star } from 'lucide-react';
+import { Sidebar, SidebarProvider } from '@ui/sidebar';
+import { SideBarNavMenu } from './SideBarNavMenu';
+
+const renderWithSidebarContext = (ui: React.ReactElement, open = true) =>
+  render(
+    <SidebarProvider open={open}>
+      <Sidebar collapsible="icon">{ui}</Sidebar>
+    </SidebarProvider>,
+  );
+
+describe('SideBarNavMenu', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('renders menu items and toggles sub items', () => {
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'settings',
+            label: 'Settings',
+            items: [{ key: 'users', label: 'Users' }],
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Users' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Settings' }));
+    expect(screen.getByRole('link', { name: 'Users' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Settings' }));
+    expect(screen.queryByRole('link', { name: 'Users' })).toBeNull();
+  });
+
+  it('hides item when view access is denied', () => {
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'admin',
+            label: 'Admin',
+            access: { rules: [{ action: 'read', subject: 'admin' }] },
+          },
+        ]}
+        canAccess={() => false}
+      />,
+    );
+
+    expect(screen.queryByRole('link', { name: 'Admin' })).toBeNull();
+  });
+
+  it('prevents click when edit access is denied', () => {
+    const onSelect = vi.fn();
+
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'billing',
+            label: 'Billing',
+            access: { rules: [{ action: 'write', subject: 'billing' }] },
+            onSelect,
+          },
+        ]}
+        canAccess={(_, mode) => mode === 'view'}
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Billing' });
+    expect(link.getAttribute('aria-disabled')).toBe('true');
+
+    fireEvent.click(link);
+    expect(onSelect).toHaveBeenCalledTimes(0);
+  });
+
+  it('prevents navigation when href is missing and still calls onSelect', () => {
+    const onSelect = vi.fn();
+
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[{ key: 'dashboard', label: 'Dashboard', onSelect }]}
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Dashboard' });
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(clickEvent);
+
+    expect(clickEvent.defaultPrevented).toBe(true);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps collapsed submenu trigger disabled when edit access is denied', () => {
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'settings',
+            label: 'Settings',
+            access: { rules: [{ action: 'write', subject: 'settings' }] },
+            items: [{ key: 'users', label: 'Users', onSelect: vi.fn() }],
+          },
+        ]}
+        canAccess={(_, mode) => mode === 'view'}
+      />,
+      false,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Settings' });
+    expect(trigger.getAttribute('disabled')).not.toBeNull();
+  });
+
+  it('fires a hover action without navigating the row', () => {
+    const onSelect = vi.fn();
+    const onAction = vi.fn();
+
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'requests',
+            label: 'Requests',
+            href: '/app/requests',
+            onSelect,
+            action: {
+              key: 'favorite',
+              label: 'Add Requests to favorites',
+              icon: Star,
+              onSelect: onAction,
+            },
+          },
+        ]}
+      />,
+    );
+
+    const actionButton = screen.getByRole('button', {
+      name: 'Add Requests to favorites',
+    });
+    fireEvent.click(actionButton);
+
+    expect(onAction).toHaveBeenCalledTimes(1);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('marks an active action as pressed', () => {
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'requests',
+            label: 'Requests',
+            href: '/app/requests',
+            action: {
+              key: 'favorite',
+              label: 'Remove Requests from favorites',
+              icon: Star,
+              active: true,
+              onSelect: vi.fn(),
+            },
+          },
+        ]}
+      />,
+    );
+
+    const actionButton = screen.getByRole('button', {
+      name: 'Remove Requests from favorites',
+    });
+    expect(actionButton.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('disables the action when the row is read only', () => {
+    const onAction = vi.fn();
+
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        readOnly
+        items={[
+          {
+            key: 'requests',
+            label: 'Requests',
+            href: '/app/requests',
+            action: {
+              key: 'favorite',
+              label: 'Add Requests to favorites',
+              icon: Star,
+              onSelect: onAction,
+            },
+          },
+        ]}
+      />,
+    );
+
+    const actionButton = screen.getByRole('button', {
+      name: 'Add Requests to favorites',
+    });
+    expect(actionButton.getAttribute('disabled')).not.toBeNull();
+  });
+
+  it('allows collapsed submenu item click when access permits', () => {
+    const onSelect = vi.fn();
+
+    renderWithSidebarContext(
+      <SideBarNavMenu
+        items={[
+          {
+            key: 'settings',
+            label: 'Settings',
+            items: [{ key: 'users', label: 'Users', onSelect }],
+          },
+        ]}
+      />,
+      false,
+    );
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Settings' }));
+    fireEvent.click(screen.getByText('Users'));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+});

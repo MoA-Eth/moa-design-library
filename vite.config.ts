@@ -37,6 +37,12 @@ export default defineConfig({
   },
   resolve: {
     dedupe: ['react', 'react-dom'],
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@lib': path.resolve(__dirname, 'src/lib'),
+      '@ui': path.resolve(__dirname, 'src/components/ui'),
+    },
   },
   publicDir: false,
   build: {
