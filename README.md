@@ -1,5 +1,11 @@
 # MoA Design Library
 
+[![Live Documentation](https://img.shields.io/badge/docs-live%20site-brightgreen)](https://moa-eth.github.io/moa-design-library/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-active-success)](https://moa-eth.github.io/moa-design-library/)
+
+> **Live Documentation & Interactive Component Previews**:  
+> [https://moa-eth.github.io/moa-design-library/](https://moa-eth.github.io/moa-design-library/)
+
 ![MoA Design Library: reusable React components, design tokens and themes for Ministry of Agriculture applications](.github/assets/preview.png)
 
 Reusable React components, design tokens and themes for Ministry of Agriculture (MoA) applications.

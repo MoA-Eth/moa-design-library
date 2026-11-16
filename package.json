@@ -54,6 +54,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
+  "homepage": "https://moa-eth.github.io/moa-design-library/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MoA-Eth/moa-design-library.git"
