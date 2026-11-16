@@ -45,6 +45,10 @@ export type ButtonAccessResolver = AccessResolver<
   ButtonAccessRule
 >;
 
+export type ButtonIcon =
+  | React.ReactNode
+  | React.ComponentType<{ className?: string }>;
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** primary for the one main action of a page; secondary/outline beside it; destructive for delete or reject */
@@ -53,9 +57,9 @@ export interface ButtonProps
   /** Shows a spinner and blocks clicks while the action runs */
   loading?: boolean;
   /** Icon before the label */
-  leftIcon?: React.ReactNode;
+  leftIcon?: ButtonIcon;
   /** Icon after the label */
-  rightIcon?: React.ReactNode;
+  rightIcon?: ButtonIcon;
   /** Render the child element (e.g. a router link) with the button's look */
   asChild?: boolean;
   /** Button label alternative to children */
