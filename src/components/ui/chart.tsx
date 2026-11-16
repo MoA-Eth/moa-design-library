@@ -98,16 +98,47 @@ ${colorConfig
   );
 };
 
+type TooltipPayloadItem = {
+  type?: string;
+  name?: string;
+  dataKey?: string | number | ((item: unknown) => unknown);
+  value?: unknown;
+  color?: string;
+  payload?: {
+    fill?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+};
+
+type LegendPayloadItem = {
+  value?: string;
+  id?: string;
+  type?: string;
+  color?: string;
+  dataKey?: string | number;
+  [key: string]: unknown;
+};
+
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
     active?: boolean;
-    payload?: any[];
-    label?: any;
-    labelFormatter?: any;
-    formatter?: any;
+    payload?: TooltipPayloadItem[];
+    label?: React.ReactNode;
+    labelFormatter?: (
+      label: React.ReactNode,
+      payload: TooltipPayloadItem[],
+    ) => React.ReactNode;
+    formatter?: (
+      value: unknown,
+      name: unknown,
+      item: TooltipPayloadItem,
+      index: number,
+      payload: TooltipPayloadItem[],
+    ) => React.ReactNode;
     hideLabel?: boolean;
     hideIndicator?: boolean;
     indicator?: 'line' | 'dot' | 'dashed';
@@ -190,11 +221,11 @@ const ChartTooltipContent = React.forwardRef<
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
           {payload
-            .filter((item: any) => item.type !== 'none')
-            .map((item: any, index: number) => {
+            .filter((item) => item.type !== 'none')
+            .map((item, index: number) => {
               const key = `${nameKey || item.name || item.dataKey || 'value'}`;
               const itemConfig = getPayloadConfigFromPayload(config, item, key);
-              const indicatorColor = color || item.payload.fill || item.color;
+              const indicatorColor = color || item.payload?.fill || item.color;
 
               return (
                 <div
@@ -271,7 +302,7 @@ const ChartLegend = RechartsPrimitive.Legend;
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
-    payload?: any[];
+    payload?: LegendPayloadItem[];
     verticalAlign?: 'top' | 'bottom' | 'middle';
     hideIcon?: boolean;
     nameKey?: string;

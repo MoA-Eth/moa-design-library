@@ -7,7 +7,10 @@ function resolveIconNode(icon: React.ReactNode | unknown): React.ReactNode {
   if (!icon) return null;
   if (React.isValidElement(icon)) return icon;
   if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && ('$$typeof' in icon || 'render' in icon))) {
-    return React.createElement(icon as any, { className: 'h-3.5 w-3.5' });
+    return React.createElement(
+      icon as React.ComponentType<{ className?: string }>,
+      { className: 'h-3.5 w-3.5' },
+    );
   }
   return icon as React.ReactNode;
 }

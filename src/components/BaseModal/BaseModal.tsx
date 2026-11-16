@@ -49,7 +49,15 @@ const toButtonAccessResolver = (
     return undefined;
   }
 
-  return (rule: any) => canAccess(toButtonAccessRule(rule) as any, 'action');
+  return (rule: ButtonAccessRule) =>
+    canAccess(
+      {
+        subject: rule.subject,
+        action: rule.action,
+        mode: 'action',
+      },
+      'action',
+    );
 };
 
 const matchesModalAccess = (

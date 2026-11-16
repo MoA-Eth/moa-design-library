@@ -5,10 +5,6 @@ export enum ChartVariant {
   Bar = 'bar',
   Area = 'area',
   Pie = 'pie',
-  LINE = 'line',
-  BAR = 'bar',
-  AREA = 'area',
-  PIE = 'pie',
 }
 
 /**

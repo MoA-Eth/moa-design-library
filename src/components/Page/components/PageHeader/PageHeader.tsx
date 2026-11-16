@@ -26,7 +26,7 @@ export function PageHeader(props: Readonly<PageHeaderProps>) {
               key={action.name}
               onClick={action.onClick}
               variant={action.variant}
-              leftIcon={action.icon ? (typeof action.icon === 'function' ? React.createElement(action.icon as any, { className: 'h-4 w-4' }) : action.icon) : undefined}
+              leftIcon={action.icon}
               label={action.name}
               disabled={action.disabled}
               access={action.access}

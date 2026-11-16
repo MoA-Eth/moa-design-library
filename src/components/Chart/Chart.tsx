@@ -282,14 +282,13 @@ export const Chart = forwardRef<HTMLDivElement, ChartProps>((props, ref) => {
   // Enumerate every key that will need a color slot so we can prefill
   // fallback palette entries for any series/slice the caller didn't color.
   const colorKeys = useMemo(() => {
-    const p = props as any;
-    if (p.type === ChartVariant.Pie) {
-      const { data: pieData, nameKey } = p;
-      return (pieData as any[]).map((datum) =>
+    if (props.type === ChartVariant.Pie) {
+      const { data: pieData, nameKey } = props;
+      return pieData.map((datum) =>
         String((datum as Record<string, unknown>)[nameKey] ?? ''),
       );
     }
-    return ((p.series as any[]) ?? []).map((entry: any) => entry.dataKey);
+    return (props.series ?? []).map((entry) => entry.dataKey);
   }, [props]);
 
   const resolvedConfig = useMemo(
